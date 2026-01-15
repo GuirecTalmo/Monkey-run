@@ -1,0 +1,78 @@
+# Règles pour l'Agent Cursor - Monkey-run
+
+## 📋 Règles Générales
+
+### AVANT toute modification
+- Lire PROJECT_CONTEXT.md en entier
+- Vérifier les décisions architecturales existantes
+- Consulter les pièges connus
+- Vérifier les tests existants
+
+### PENDANT la modification
+- Respecter les conventions de code (kebab-case fichiers, PascalCase classes, camelCase variables)
+- Suivre les patterns architecturaux (Modules NestJS, Services, Dependency Injection)
+- Ajouter des tests pour toute nouvelle fonctionnalité
+- Utiliser TypeScript strict (éviter `any` sans justification)
+- Valider les entrées avec class-validator (backend) ou zod (mobile)
+
+### APRÈS chaque modification
+- Mettre à jour PROJECT_CONTEXT.md dans "Journal des modifications"
+- Documenter les nouvelles dépendances
+- Vérifier que les tests passent
+- Vérifier le linting
+- Mettre à jour la date "Dernière mise à jour"
+
+## 🚫 Interdictions Absolues
+
+- ❌ Ne JAMAIS supprimer des tests sans justification
+- ❌ Ne JAMAIS modifier les migrations Prisma déjà appliquées
+- ❌ Ne JAMAIS ignorer les erreurs TypeScript/linting
+- ❌ Ne JAMAIS commiter des secrets (.env est ignoré)
+- ❌ Ne JAMAIS utiliser `any` sans justification
+- ❌ Ne JAMAIS modifier le schéma Prisma sans migration
+- ❌ Ne JAMAIS hardcoder des URLs d'API dans le code mobile
+
+## ✅ Validation Humaine Requise Pour
+
+- Configuration de sécurité/authentification
+- Modifications du schéma de base de données
+- Ajout de dépendances majeures
+- Refactoring de modules critiques (PrismaService, api.ts, storage.ts)
+- Modifications des fichiers natifs Android/iOS
+
+## 🏗️ Architecture
+
+- **Backend** : NestJS modulaire (Modules → Controllers → Services → Prisma)
+- **Mobile** : React Native avec services (API, Storage) et composants
+- **Base de données** : PostgreSQL via Prisma ORM
+- **Authentification** : JWT + Passport (à implémenter complètement)
+
+## ⚠️ Pièges Connus
+
+- Schéma Prisma vide (aucun modèle défini)
+- Authentification non implémentée (dépendances présentes, module manquant)
+- URL API hardcodée dans mobile/src/services/api.ts
+- Pas de gestion d'erreurs centralisée
+- Pas de validation des DTOs
+- Pas de CORS configuré
+
+## 📝 Conventions
+
+- **Backend** : fichiers `kebab-case.ts`, classes `PascalCase`, variables `camelCase`
+- **Mobile** : composants `PascalCase.tsx`, services `camelCase.ts`
+- **Tests** : `*.spec.ts` (backend), `*.test.tsx` (mobile)
+- **Linting** : ESLint + Prettier configurés
+
+## 🔗 Fichiers Critiques
+
+- `src/prisma/prisma.service.ts` - Service global base de données
+- `mobile/src/services/api.ts` - Client HTTP centralisé
+- `mobile/src/services/storage.ts` - Stockage sécurisé
+- `prisma/schema.prisma` - Schéma base de données (vide actuellement)
+- `src/main.ts` - Point d'entrée backend
+
+## 📚 Documentation
+
+- Consulter `README.md` pour l'installation et configuration
+- Consulter `ANALYSE_PROJET.md` pour l'analyse complète
+- Consulter `PROJECT_CONTEXT.md` pour le contexte et historique
