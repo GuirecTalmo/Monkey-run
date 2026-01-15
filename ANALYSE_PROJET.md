@@ -209,11 +209,14 @@ async function bootstrap() {
 **Endpoints actuels** :
 - `GET /` → Retourne "Hello World!" (exemple)
 
-**Endpoints à implémenter** (selon README) :
-- `/auth/login` → Authentification
-- `/auth/register` → Inscription
-- `/api/trainings` → Gestion des entraînements
-- `/api/users` → Gestion des utilisateurs
+**Endpoints à implémenter** (selon MVP) :
+- `POST /auth/signup` → Inscription
+- `POST /auth/login` → Connexion
+- `POST /auth/forgot-password` → Mot de passe oublié
+- `GET /users/me` → Profil utilisateur
+- `PATCH /users/me` → Mise à jour profil
+- `GET /runs` → Liste des courses de l'utilisateur
+- `POST /runs` → Création d'une course
 
 ### Mobile
 
@@ -288,11 +291,10 @@ datasource db {
 }
 ```
 
-**Modèles à créer** (selon le contexte métier) :
+**Modèles à créer** (selon le MVP) :
 - `User` : Utilisateurs de l'application
-- `Training` : Entraînements de course
-- `TrainingSession` : Sessions d'entraînement individuelles
-- `Workout` : Exercices de fractionné
+- `Profile` : Profil utilisateur (pseudo, avatar, nom, prénom)
+- `Run` : Courses enregistrées (date, durée, pattern de fractionné)
 
 ### Migrations
 
@@ -306,12 +308,9 @@ datasource db {
 
 ### Stratégies de Cache
 
-**Aucune stratégie de cache n'est actuellement implémentée.**
+**Aucune stratégie de cache n'est actuellement implémentée pour le MVP.**
 
-**Recommandations** :
-- Cache Redis pour les sessions utilisateur
-- Cache des requêtes fréquentes (entraînements, statistiques)
-- Cache côté mobile avec AsyncStorage pour les données offline
+**Note** : Le cache pourra être ajouté dans une version future si nécessaire.
 
 ---
 
@@ -392,10 +391,7 @@ Le fichier `README.md` est **très complet** et contient :
 
 **État actuel** : ❌ **Aucune documentation API n'est présente**
 
-**Recommandations** :
-- Ajouter Swagger/OpenAPI avec `@nestjs/swagger`
-- Documenter les endpoints avec des exemples
-- Générer automatiquement la documentation depuis les DTOs
+**Note** : La documentation API Swagger pourra être ajoutée dans une version future si nécessaire.
 
 ### Commentaires de Code
 
@@ -409,11 +405,7 @@ Le fichier `README.md` est **très complet** et contient :
 
 **État actuel** : ❌ **Aucun guide de contribution n'est présent**
 
-**Recommandation** : Créer un fichier `CONTRIBUTING.md` avec :
-- Standards de code
-- Processus de pull request
-- Conventions de commit
-- Checklist de développement
+**Note** : Le guide de contribution pourra être créé dans une phase ultérieure si nécessaire.
 
 ---
 
@@ -430,33 +422,19 @@ Le fichier `README.md` est **très complet** et contient :
 
 **État actuel** : ❌ **Aucun pipeline CI/CD n'est configuré**
 
-**Recommandations** :
-- **GitHub Actions** : Créer des workflows pour :
-  - Tests automatiques (unitaires + E2E)
-  - Linting et formatage
-  - Build des applications (backend + mobile)
-  - Déploiement automatique (staging/production)
-- **GitLab CI** : Alternative si utilisation de GitLab
+**Note** : Le CI/CD ne fait pas partie du MVP et sera configuré dans une phase ultérieure.
 
 ### Stratégies de Branching
 
 **État actuel** : ⚠️ **Non documentée**
 
-**Recommandation** : Adopter Git Flow ou GitHub Flow :
-- `main` : Production
-- `develop` : Développement
-- `feature/*` : Nouvelles fonctionnalités
-- `fix/*` : Corrections de bugs
-- `release/*` : Préparation de release
+**Note** : La stratégie de branching pourra être définie dans une phase ultérieure.
 
 ### Processus de Déploiement
 
 **État actuel** : ❌ **Non défini**
 
-**Recommandations** :
-- Backend : Déploiement sur Heroku, Railway, AWS, ou VPS
-- Mobile : Distribution via Google Play Store (Android) et App Store (iOS)
-- Configuration des environnements de staging et production
+**Note** : Le déploiement et la distribution ne font pas partie du MVP et seront traités dans une phase ultérieure.
 
 ---
 
@@ -474,11 +452,10 @@ Le fichier `README.md` est **très complet** et contient :
 - `passport-jwt` : Stratégie JWT pour Passport
 - `bcrypt` : Hachage des mots de passe
 
-**À implémenter** :
-- Module `AuthModule` (mentionné dans le README comme "à créer")
+**À implémenter pour le MVP** :
+- Module `AuthModule` avec endpoints `/auth/signup`, `/auth/login`, `/auth/forgot-password`
 - Guards JWT (`@UseGuards(JwtAuthGuard)`)
 - Stratégies Passport (JWT Strategy)
-- Endpoints `/auth/login`, `/auth/register`
 - Validation des tokens JWT
 
 #### Mobile
@@ -507,12 +484,10 @@ Le fichier `README.md` est **très complet** et contient :
 - ✅ Variables d'environnement pour les secrets (JWT_SECRET)
 - ✅ Validation des données avec `class-validator`
 
-**À améliorer** :
-- ⚠️ Pas de rate limiting configuré
+**À améliorer pour le MVP** :
 - ⚠️ Pas de CORS configuré explicitement dans `main.ts`
 - ⚠️ Pas de validation des entrées utilisateur (DTOs manquants)
 - ⚠️ Pas de gestion des erreurs centralisée
-- ⚠️ Pas de logging structuré (Winston, Pino)
 
 #### Mobile
 
@@ -521,10 +496,8 @@ Le fichier `README.md` est **très complet** et contient :
 - ✅ Intercepteur pour gestion automatique des tokens
 - ✅ Gestion des erreurs réseau dans l'intercepteur Axios
 
-**À améliorer** :
-- ⚠️ Pas de gestion de refresh token automatique
+**À améliorer pour le MVP** :
 - ⚠️ Pas de gestion de déconnexion automatique en cas d'erreur 401
-- ⚠️ Pas de validation des certificats SSL (pin SSL)
 
 ### Configuration des Permissions
 
@@ -534,11 +507,10 @@ Le fichier `README.md` est **très complet** et contient :
 
 **État actuel** : ⚠️ **Non vérifié** (fichier non lu)
 
-**Permissions typiquement requises** :
+**Permissions requises pour le MVP** :
 - `INTERNET` : Pour les requêtes API
 - `ACCESS_NETWORK_STATE` : Pour vérifier la connectivité
-- `ACCESS_FINE_LOCATION` : Si utilisation du GPS pour la course
-- `ACCESS_COARSE_LOCATION` : Si utilisation du GPS
+- `VIBRATE` : Pour les notifications de vibration du chrono
 
 #### Mobile iOS
 
@@ -563,23 +535,19 @@ Le fichier `README.md` est **très complet** et contient :
 
 1. **Schéma Prisma vide** : Aucun modèle de données défini
 2. **Authentification non implémentée** : Dépendances installées mais module AuthModule manquant
-3. **Pas de CI/CD** : Aucun pipeline automatisé
-4. **Couverture de tests limitée** : Seulement les fichiers de base testés
-5. **Pas de documentation API** : Swagger/OpenAPI manquant
-6. **Configuration environnement** : Pas de gestion multi-environnements
-7. **Pas de logging structuré** : Logs basiques uniquement
-8. **Pas de gestion d'erreurs centralisée** : Gestion d'erreurs à améliorer
+3. **Couverture de tests limitée** : Seulement les fichiers de base testés
+4. **Pas de gestion d'erreurs centralisée** : Gestion d'erreurs à améliorer
+5. **Configuration environnement** : Pas de gestion multi-environnements (optionnel pour MVP)
 
 ### 🔴 Dettes Techniques Potentielles
 
-1. **Base de données** : Schéma à définir complètement
-2. **Authentification** : Module complet à implémenter
-3. **API** : Endpoints métier à créer
-4. **Mobile** : Navigation et écrans à développer
+1. **Base de données** : Schéma à définir complètement (User, Profile, Run)
+2. **Authentification** : Module complet à implémenter (signup, login, forgot-password)
+3. **API** : Endpoints métier à créer (UsersModule, RunsModule)
+4. **Mobile** : Navigation et écrans à développer (Auth, Timer, Dashboard)
 5. **Tests** : Couverture à augmenter significativement
-6. **CI/CD** : Pipeline à mettre en place
-7. **Monitoring** : Outils de monitoring/logging à ajouter
-8. **Performance** : Optimisations à prévoir (cache, pagination, etc.)
+6. **Chrono** : Implémenter le chronomètre avec notifications voix/vibration
+7. **BackgroundTimer** : Configurer le chrono en arrière-plan
 
 ---
 
@@ -588,69 +556,48 @@ Le fichier `README.md` est **très complet** et contient :
 ### Priorité Haute 🔴
 
 1. **Définir le schéma Prisma**
-   - Créer les modèles `User`, `Training`, `TrainingSession`, etc.
+   - Créer les modèles `User`, `Profile`, `Run`
    - Générer les migrations initiales
    - Documenter le modèle de données
 
 2. **Implémenter l'authentification complète**
    - Créer le module `AuthModule`
-   - Implémenter les endpoints `/auth/login` et `/auth/register`
+   - Implémenter les endpoints `/auth/signup`, `/auth/login`, `/auth/forgot-password`
    - Créer les guards JWT
    - Tester l'authentification end-to-end
 
-3. **Créer les endpoints API métier**
-   - Endpoints CRUD pour les entraînements
-   - Endpoints pour les utilisateurs
+3. **Créer les modules métier**
+   - `UsersModule` : GET/PATCH /users/me (profil utilisateur)
+   - `RunsModule` : GET/POST /runs (gestion des courses)
    - Validation des DTOs avec `class-validator`
 
-4. **Ajouter la documentation API**
-   - Installer `@nestjs/swagger`
-   - Documenter tous les endpoints
-   - Générer la documentation OpenAPI
+4. **Développer l'application mobile**
+   - Écrans d'authentification (signup, login, forgot-password)
+   - Écran chronomètre avec notifications voix/vibration
+   - Écran dashboard avec historique des courses
 
 ### Priorité Moyenne 🟡
 
-5. **Mettre en place CI/CD**
-   - GitHub Actions pour tests automatiques
-   - Build automatique sur push
-   - Déploiement automatique sur staging
-
-6. **Améliorer la gestion d'erreurs**
+5. **Améliorer la gestion d'erreurs**
    - Créer un filtre d'exceptions global
    - Standardiser les réponses d'erreur
-   - Ajouter un logging structuré (Winston/Pino)
 
-7. **Augmenter la couverture de tests**
+6. **Augmenter la couverture de tests**
    - Tests unitaires pour tous les services
    - Tests d'intégration pour les endpoints
    - Tests E2E pour les flux critiques
 
-8. **Configuration multi-environnements**
+7. **Configuration multi-environnements**
    - Créer `.env.example`
-   - Configurer les environnements dev/staging/prod
    - Validation des variables d'environnement
 
-### Priorité Basse 🟢
-
-9. **Optimisations de performance**
-   - Cache Redis pour les requêtes fréquentes
-   - Pagination sur les endpoints de liste
-   - Optimisation des requêtes Prisma
-
-10. **Améliorer le mobile**
-    - Implémenter la navigation complète
-    - Créer les écrans principaux
-    - Gestion offline avec AsyncStorage
-
-11. **Monitoring et observabilité**
-    - Intégration Sentry pour le tracking d'erreurs
-    - Métriques de performance
-    - Logs structurés en production
-
-12. **Documentation supplémentaire**
-    - Guide de contribution (`CONTRIBUTING.md`)
-    - Architecture décisionnelle (ADR)
-    - Guide de déploiement
+**Note** : Les fonctionnalités suivantes sont prévues pour les versions futures (hors MVP) :
+- CI/CD automatisé
+- Cache Redis
+- Gestion offline
+- Monitoring avancé
+- Dashboard web
+- Upload d'avatars vers S3
 
 ---
 
@@ -702,25 +649,30 @@ Le fichier `README.md` est **très complet** et contient :
 - [ ] Tests unitaires passent : `npm run test`
 - [ ] Linting OK : `npm run lint`
 
-#### Prochaines Étapes de Développement
-- [ ] Définir le schéma Prisma (modèles de données)
-- [ ] Implémenter l'authentification (AuthModule)
-- [ ] Créer les endpoints API métier
-- [ ] Développer les écrans mobile
+#### Prochaines Étapes de Développement (MVP)
+- [ ] Définir le schéma Prisma (User, Profile, Run)
+- [ ] Implémenter AuthModule (signup, login, forgot-password)
+- [ ] Implémenter UsersModule (GET/PATCH /users/me)
+- [ ] Implémenter RunsModule (GET/POST /runs)
+- [ ] Développer les écrans mobile d'authentification
+- [ ] Développer l'écran chronomètre avec notifications
+- [ ] Développer l'écran dashboard avec historique
+- [ ] Configurer BackgroundTimer pour le chrono en arrière-plan
 - [ ] Écrire les tests
 
 ---
 
 ## 15. Conclusion
 
-Le projet **Monkey-run** présente une **base solide** avec une architecture moderne et bien structurée. La documentation est excellente et facilite grandement la prise en main du projet. Cependant, le projet est encore en **phase de développement initiale** avec plusieurs fonctionnalités clés à implémenter :
+Le projet **Monkey-run** présente une **base solide** avec une architecture moderne et bien structurée. La documentation est excellente et facilite grandement la prise en main du projet. Le projet est en **phase de développement MVP** avec les fonctionnalités suivantes à implémenter :
 
-- **Schéma de base de données** à définir
-- **Authentification complète** à implémenter
-- **Endpoints API métier** à créer
-- **Interface mobile** à développer
+- **Schéma de base de données** : Modèles User, Profile, Run à définir
+- **Authentification complète** : AuthModule avec signup, login, forgot-password
+- **Modules métier** : UsersModule et RunsModule à créer
+- **Interface mobile** : Écrans Auth, Timer et Dashboard à développer
+- **Chronomètre** : Fonctionnalité principale avec notifications voix/vibration
 
-Les choix technologiques sont pertinents et modernes, et l'infrastructure de sécurité est bien préparée. Avec l'implémentation des fonctionnalités manquantes et l'ajout de tests et de CI/CD, le projet sera prêt pour la production.
+Les choix technologiques sont pertinents et modernes, et l'infrastructure de sécurité est bien préparée. Avec l'implémentation des fonctionnalités MVP, le projet sera prêt pour une première version fonctionnelle.
 
 **Note globale** : ⭐⭐⭐⭐ (4/5) - Excellent départ, nécessite l'implémentation des fonctionnalités métier.
 

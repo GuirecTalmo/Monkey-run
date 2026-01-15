@@ -1,34 +1,73 @@
 # Contexte et Historique du Projet
 
-**Dernière mise à jour :** 2026-01-15 21:15:02
+**Dernière mise à jour :** 2026-01-15 21:44:09
 **Version du projet :** 0.0.1
 **Agent Cursor :** Composer
 **Développeur actuel :** [À REMPLIR]
 
 ## État actuel du projet
 
-Le projet Monkey-run est une application de gestion d'entraînements de course en fractionné en phase de développement initiale. L'architecture est solide avec un backend NestJS et une application mobile React Native, mais plusieurs fonctionnalités clés restent à implémenter : le schéma Prisma est vide, l'authentification n'est pas encore développée malgré les dépendances installées, et les endpoints API métier sont absents. La documentation README est excellente et facilite grandement la prise en main du projet.
+Application mobile de course en fractionné guidée (MVP). Phase actuelle : **Phase 1 - Backend (Setup initial)**. Le projet est en phase de développement initiale avec seulement le PrismaModule configuré. Le schéma Prisma est vide, l'authentification n'est pas encore développée malgré les dépendances installées, et les modules métier (AuthModule, UsersModule, RunsModule) sont à créer. Stack : React Native + Tamagui (mobile) / NestJS + PostgreSQL + Prisma (backend).
 
 ---
 
 ## Architecture
 
 ### Stack Technique
-- **Frontend Mobile :** React Native 0.82.1, TypeScript 5.8.3, Tamagui 1.135.7 (UI Library), React Navigation 7.1.19/7.6.2, Axios 1.13.1, React Hook Form 7.66.0, Zod 4.1.12, react-native-encrypted-storage 4.0.3
-- **Backend :** NestJS 11.0.1, TypeScript 5.7.3, Node.js >= 18.x (20.x recommandé), Express (via @nestjs/platform-express)
-- **Base de données :** PostgreSQL >= 14.x, Prisma ORM 6.18.0, Prisma Client (généré automatiquement)
-- **Infrastructure :** Aucun CI/CD configuré actuellement, pas de Docker détecté, pas de cloud configuré
-- **Autres :** npm (gestionnaire de paquets), Metro Bundler 0.82.1 (bundler React Native), Gradle (build Android), Xcode/CocoaPods (build iOS), Jest 30.0.0 (tests backend), Jest 29.6.3 (tests mobile), ESLint 9.18.0 (backend) / 8.19.0 (mobile), Prettier 3.4.2 (backend) / 2.8.8 (mobile)
+
+**Frontend Mobile :**
+- React Native 0.82.1 (priorité Android)
+- Tamagui 1.135.7 (design system)
+- @react-navigation/native 7.1.19 / @react-navigation/native-stack 7.6.2 (navigation)
+- react-hook-form 7.66.0 + zod 4.1.12 (formulaires et validation)
+- axios 1.13.1 (client HTTP pour API)
+- react-native-encrypted-storage 4.0.3 (stockage sécurisé des tokens)
+- react-native-background-timer (chrono en arrière-plan, à installer si nécessaire)
+- TypeScript 5.8.3
+
+**Backend :**
+- NestJS 11.0.1 (framework backend)
+- @nestjs/passport 11.0.5 + passport-jwt 4.0.1 (authentification JWT)
+- bcrypt 6.0.0 (hashage des mots de passe)
+- PostgreSQL >= 14.x (base de données relationnelle)
+- Prisma 6.18.0 (ORM recommandé)
+- class-validator 0.14.2 / class-transformer 0.5.1 (validation et transformation des DTOs)
+- TypeScript 5.7.3
+- Node.js >= 18.x (20.x recommandé)
+
+**Infrastructure :**
+- Aucun CI/CD configuré actuellement
+- Pas de Docker détecté
+- S3 pour avatars (à implémenter plus tard)
+
+**Autres :**
+- npm (gestionnaire de paquets)
+- Metro Bundler 0.82.1 (bundler React Native)
+- Gradle (build Android)
+- Xcode/CocoaPods (build iOS)
+- Jest 30.0.0 (tests backend) / Jest 29.6.3 (tests mobile)
+- ESLint 9.18.0 (backend) / 8.19.0 (mobile)
+- Prettier 3.4.2 (backend) / 2.8.8 (mobile)
+
+### Architecture du projet
+- **Type :** Application mobile-first avec backend API REST
+- **Flow de données :** Mobile (React Native) → Backend (NestJS) → Database (PostgreSQL) → Web Dashboard (futur)
+- **Authentification :** JWT avec refresh token (stateless, scalable)
+- **Structure :** Monorepo (backend et mobile dans le même repository)
+- **Architecture mobile :** Services (API, Storage) → Composants → Navigation
 
 ### Décisions architecturales clés
 | Date | Décision | Raison | Impact |
 |------|----------|--------|--------|
-| Initial | Architecture modulaire NestJS | Séparation claire des responsabilités, facilité de maintenance | Structure organisée en modules, controllers, services |
-| Initial | Prisma comme ORM | Type-safety, migrations automatiques, génération de client | Accès type-safe à la base de données, mais schéma vide actuellement |
-| Initial | React Native multiplateforme | Développement unique pour Android et iOS | Code partagé entre plateformes, nécessite configuration native |
-| Initial | Stockage sécurisé avec react-native-encrypted-storage | Sécurité des tokens JWT et données sensibles | Utilisation du KeyStore Android/Keychain iOS natif |
-| Initial | Tamagui pour l'UI | Performance et design system moderne | UI cohérente mais nécessite configuration |
-| Initial | JWT + Passport pour l'authentification | Standard de l'industrie, stateless | Infrastructure prête mais non implémentée |
+| Initial | React Native pour le mobile (priorité Android) | Cross-platform, code partagé, performance native | Développement unique pour Android et iOS, nécessite configuration native |
+| Initial | Tamagui pour l'UI | Design system performant et moderne, optimisation automatique | UI cohérente, meilleures performances que les composants React Native natifs |
+| Initial | Architecture modulaire NestJS | Séparation claire des responsabilités, facilité de maintenance, TypeScript natif | Structure organisée en modules (AuthModule, UsersModule, RunsModule), controllers, services |
+| Initial | Prisma comme ORM | Type-safety, migrations automatiques, génération de client, recommandé dans les specs | Accès type-safe à la base de données, migrations faciles, mais schéma vide actuellement |
+| Initial | JWT pour l'authentification | Standard de l'industrie, stateless, scalable, requis par les specs | Infrastructure prête mais non implémentée, nécessite Passport |
+| Initial | PostgreSQL pour la persistence | Base de données relationnelle robuste, requise par les specs | Persistance fiable, nécessite configuration et migrations |
+| Initial | Stockage sécurisé avec react-native-encrypted-storage | Sécurité des tokens JWT et données sensibles, requis par les specs | Utilisation du KeyStore Android/Keychain iOS natif, sécurité renforcée |
+| Initial | react-hook-form + zod | Gestion des formulaires et validation, requis par les specs | Validation côté client robuste, meilleure UX |
+| Initial | BackgroundTimer si nécessaire | Chrono fonctionnel en arrière-plan pour les courses | Permet de continuer le chrono même si l'app est en arrière-plan |
 
 ### Patterns utilisés
 - **Singleton Pattern** : `PrismaService` (service global dans `src/prisma/prisma.service.ts`), `SecureStorageService` (instance unique dans `mobile/src/services/storage.ts`)
@@ -38,13 +77,28 @@ Le projet Monkey-run est une application de gestion d'entraînements de course e
 - **Service Pattern** : Services pour la logique métier et l'accès aux données (`AppService`, `PrismaService`)
 - **Interceptor Pattern** : Intercepteurs Axios dans `mobile/src/services/api.ts` pour ajout automatique des tokens JWT
 
+### Modules de l'application
+
+#### Backend (NestJS)
+- **PrismaModule** : Service global pour l'accès à la base de données (✅ Existant)
+- **AuthModule** : Gestion authentification (signup, login, forgot-password, JWT) (❌ À créer)
+- **UsersModule** : Gestion profil utilisateur (GET/PATCH /users/me) (❌ À créer)
+- **RunsModule** : Gestion des courses (GET/POST /runs) (❌ À créer)
+
+#### Mobile (React Native)
+- **Auth** : Écrans d'inscription, connexion, mot de passe oublié (❌ À créer)
+- **Profile** : Consultation et modification du profil (❌ À créer)
+- **Timer** : Chronomètre de course avec notifications voix/vibration (❌ À créer)
+- **Dashboard** : Historique des courses et statistiques (❌ À créer)
+
 ### Conventions de code
 - **Nommage :** 
-  - Backend : fichiers en `kebab-case` (ex: `app.controller.ts`), classes en `PascalCase` (ex: `AppController`), variables en `camelCase` (ex: `appService`)
-  - Mobile : fichiers en `kebab-case` ou `PascalCase` pour composants, composants en `PascalCase` (ex: `App.tsx`), services en `camelCase` (ex: `api.ts`)
+  - Backend : fichiers en `kebab-case` (ex: `app.controller.ts`), classes en `PascalCase` (ex: `AppController`), méthodes/variables en `camelCase` (ex: `appService`)
+  - Mobile : composants en `PascalCase` (ex: `App.tsx`), hooks/fonctions en `camelCase`, services en `camelCase` (ex: `api.ts`)
+  - Base de données : tables et colonnes en `snake_case` (ex: `user_id`, `created_at`)
 - **Structure des fichiers :** 
-  - Backend : Organisation modulaire NestJS (`src/module/module.controller.ts`, `module.service.ts`, `module.module.ts`)
-  - Mobile : Services dans `src/services/`, composants à créer dans `src/components/`
+  - Backend : Organisation modulaire NestJS (`src/module/module.controller.ts`, `module.service.ts`, `module.module.ts`, `module.dto.ts`)
+  - Mobile : Services dans `src/services/`, composants dans `src/components/`, écrans dans `src/screens/`
 - **Style :** 
   - Backend : ESLint 9.18.0 avec typescript-eslint, Prettier 3.4.2, règles personnalisées (certaines règles strictes désactivées)
   - Mobile : ESLint 8.19.0 avec configuration React Native, Prettier 2.8.8
@@ -74,6 +128,62 @@ Le projet Monkey-run est une application de gestion d'entraînements de course e
 2. `.cursor/MODIFICATION_TEMPLATE.md` - Template pour futures sessions
 3. `.cursor/rules` - Règles simplifiées pour l'agent
 4. `ANALYSE_PROJET.md` - Analyse approfondie complète du projet
+
+---
+
+### 2026-01-15 - Session 2 - Intégration des spécifications du projet
+**Développeur/Agent :** Cursor Agent (Composer)
+**Objectif :** Mise à jour du contexte avec les spécifications détaillées du projet
+
+#### Modifications effectuées
+1. **Docs** - Mise à jour complète de PROJECT_CONTEXT.md avec les spécifications
+   - **Fichiers modifiés :**
+     - `.cursor/PROJECT_CONTEXT.md` - Intégration des spécifications (concept, stack technique, modules, schéma BDD, phases de développement)
+   - **Raison :** Aligner la documentation avec les spécifications réelles du projet (application de course en fractionné guidée)
+   - **Tests ajoutés :** Non
+   - **Breaking changes :** Non
+   - **Dépendances modifiées :** Aucune
+
+2. **Docs** - Création de la documentation API complète
+   - **Fichiers créés :**
+     - `.cursor/API_DOCUMENTATION.md` - Documentation détaillée de tous les endpoints (Auth, Users, Runs)
+   - **Raison :** Documenter les endpoints API selon les spécifications (request/response, validation, codes d'erreur)
+   - **Tests ajoutés :** Non
+   - **Breaking changes :** Non
+   - **Dépendances modifiées :** Aucune
+
+3. **Docs** - Création du schéma de base de données Prisma
+   - **Fichiers créés :**
+     - `.cursor/DATABASE_SCHEMA.md` - Schéma Prisma complet avec modèles User, Profile, Run
+   - **Raison :** Documenter le schéma de base de données selon les spécifications
+   - **Tests ajoutés :** Non
+   - **Breaking changes :** Non
+   - **Dépendances modifiées :** Aucune
+
+4. **Docs** - Création du plan de développement par phases
+   - **Fichiers créés :**
+     - `.cursor/DEVELOPMENT_PHASES.md` - Détail des 4 phases de développement (Backend, Mobile Auth, Mobile Chrono, Mobile Dashboard)
+   - **Raison :** Planifier l'ordre de développement recommandé avec tâches détaillées
+   - **Tests ajoutés :** Non
+   - **Breaking changes :** Non
+   - **Dépendances modifiées :** Aucune
+
+#### Points d'attention
+- [ ] Le schéma Prisma doit être implémenté dans `prisma/schema.prisma` avant utilisation
+- [ ] Les modules AuthModule, UsersModule, RunsModule sont à créer selon les spécifications
+- [ ] Les écrans mobile (Auth, Timer, Dashboard) sont à développer selon les phases
+- [ ] BackgroundTimer doit être installé et configuré pour le chrono en arrière-plan
+
+#### Dépendances ajoutées/supprimées
+- **Ajoutées :** Aucune (dépendances déjà présentes)
+- **Supprimées :** Aucune
+- **Mises à jour :** Aucune
+
+#### Documentation mise à jour
+- [x] PROJECT_CONTEXT.md - Intégration complète des spécifications
+- [x] API_DOCUMENTATION.md - Créé avec tous les endpoints détaillés
+- [x] DATABASE_SCHEMA.md - Créé avec le schéma Prisma complet
+- [x] DEVELOPMENT_PHASES.md - Créé avec le plan de développement détaillé
 
 ---
 
@@ -108,23 +218,27 @@ Le projet Monkey-run est une application de gestion d'entraînements de course e
 | react-hook-form | 7.66.0 | Gestion des formulaires dans React Native | Formik |
 | zod | 4.1.12 | Validation de schémas côté mobile | yup, joi |
 
-### APIs internes
+## API Endpoints
+
+### Auth (public)
+- `POST /auth/signup` - Inscription (email, mot de passe)
+- `POST /auth/login` - Connexion (email, mot de passe)
+- `POST /auth/forgot-password` - Réinitialisation mot de passe
+
+### Users (authentifié - JWT requis)
+- `GET /users/me` - Profil utilisateur (nom, prénom ou pseudo, avatar)
+- `PATCH /users/me` - Mise à jour profil (pseudo, avatar, mot de passe)
+
+### Runs (authentifié - JWT requis)
+- `GET /runs` - Liste des courses de l'utilisateur connecté (tri par date)
+- `POST /runs` - Créer une nouvelle course (date, durée, pattern_json)
+
 **État actuel :** Aucun endpoint métier n'est encore implémenté.
 
 **Endpoints existants (exemples) :**
 - `GET /` → Retourne "Hello World!" (controller de test dans `src/app.controller.ts`)
 
-**Endpoints à implémenter (selon contexte métier) :**
-- `POST /auth/login` → Authentification utilisateur
-- `POST /auth/register` → Inscription utilisateur
-- `GET /auth/me` → Récupération du profil utilisateur
-- `GET /api/trainings` → Liste des entraînements
-- `POST /api/trainings` → Création d'un entraînement
-- `GET /api/trainings/:id` → Détails d'un entraînement
-- `PUT /api/trainings/:id` → Modification d'un entraînement
-- `DELETE /api/trainings/:id` → Suppression d'un entraînement
-- `GET /api/users/:id` → Profil utilisateur
-- `PUT /api/users/:id` → Modification du profil
+**Voir `.cursor/API_DOCUMENTATION.md` pour la documentation détaillée des endpoints.**
 
 ---
 
@@ -148,13 +262,19 @@ Le projet Monkey-run est une application de gestion d'entraînements de course e
 - **`.env`** : Variables d'environnement critiques. Ne jamais commiter ce fichier.
 
 ### Limitations connues
-- **Schéma Prisma vide** : Aucun modèle de données défini. TODO : Créer les modèles User, Training, TrainingSession, etc.
-- **Module AuthModule manquant** : Mentionné dans le README comme "à créer". TODO : Implémenter l'authentification complète.
+- **Schéma Prisma vide** : Aucun modèle de données défini. TODO : Créer les modèles User, Profile, Run selon les spécifications.
+- **Module AuthModule manquant** : À créer avec signup, login, forgot-password selon les spécifications.
+- **Module UsersModule manquant** : À créer avec GET/PATCH /users/me pour la gestion du profil.
+- **Module RunsModule manquant** : À créer avec GET/POST /runs pour la gestion des courses.
 - **Pas de tests pour les services** : Seuls les fichiers de base (controller, service) ont des tests. TODO : Ajouter des tests pour PrismaService, api.ts, storage.ts.
 - **Pas de documentation API** : Swagger/OpenAPI non configuré. TODO : Installer `@nestjs/swagger` et documenter les endpoints.
 - **Pas de CI/CD** : Aucun pipeline automatisé. TODO : Configurer GitHub Actions ou GitLab CI.
 - **Pas de logging structuré** : Logs basiques uniquement. TODO : Intégrer Winston ou Pino.
 - **Pas de gestion multi-environnements** : Pas de configuration spécifique dev/staging/prod. TODO : Créer `.env.example` et configurer les environnements.
+- **Chrono non implémenté** : Le chronomètre avec notifications voix/vibration n'est pas encore développé.
+- **Dashboard mobile non implémenté** : L'historique des courses et les statistiques ne sont pas encore développés.
+- **Refresh token non géré** : Aucun mécanisme automatique de renouvellement des tokens JWT.
+- **S3 pour avatars** : Non configuré, à implémenter plus tard selon les spécifications.
 
 ---
 
@@ -187,6 +307,19 @@ Le projet Monkey-run est une application de gestion d'entraînements de course e
 - [ ] Mettre à jour la date "Dernière mise à jour" en haut du fichier
 - [ ] Mettre à jour la version du projet si nécessaire
 
+### Conventions spécifiques au projet
+- **Backend :** Utiliser les décorateurs NestJS (@Controller, @Injectable, @UseGuards, @Get, @Post, @Patch)
+- **Backend :** Toujours valider les DTOs avec class-validator (décorateurs @IsEmail, @IsString, @MinLength, etc.)
+- **Backend :** Utiliser Prisma pour toutes les requêtes BDD (pas de SQL brut)
+- **Mobile :** Utiliser les composants Tamagui (pas de React Native natifs sauf nécessité)
+- **Mobile :** Formulaires avec react-hook-form + zod pour la validation
+- **Mobile :** Tout stockage sensible via react-native-encrypted-storage (jamais AsyncStorage pour les tokens)
+- **API :** Toutes les routes protégées sauf /auth/* nécessitent JWT (utiliser @UseGuards(JwtAuthGuard))
+- **Nommage :** 
+  - Backend : PascalCase pour classes, camelCase pour méthodes/variables
+  - Mobile : PascalCase pour composants, camelCase pour hooks/fonctions
+  - BDD : snake_case pour tables et colonnes
+
 ### Interdictions absolues
 - ❌ Ne JAMAIS supprimer des tests existants sans justification documentée
 - ❌ Ne JAMAIS modifier les migrations de base de données déjà appliquées
@@ -198,6 +331,11 @@ Le projet Monkey-run est une application de gestion d'entraînements de course e
 - ❌ Ne JAMAIS modifier le schéma Prisma sans créer de migration correspondante
 - ❌ Ne JAMAIS modifier les clés de stockage dans `storage.ts` sans migration des données
 - ❌ Ne JAMAIS hardcoder des URLs d'API dans le code mobile (utiliser des variables d'environnement)
+- ❌ Ne JAMAIS stocker le JWT en clair (toujours encrypted-storage)
+- ❌ Ne JAMAIS envoyer le password_hash au frontend
+- ❌ Ne JAMAIS valider les données uniquement côté client (toujours valider côté backend)
+- ❌ Ne JAMAIS exposer les endpoints backend sans authentification (sauf /auth/*)
+- ❌ Ne JAMAIS utiliser des composants React Native natifs si Tamagui a l'équivalent
 
 ### Validation humaine requise pour
 - Changements dans la configuration de sécurité ou authentification
@@ -318,40 +456,90 @@ psql -U postgres -d monkey_run -c "SELECT version();"
 
 ## Roadmap et Dette Technique
 
+### Schéma de base de données
+
+**Table `user` :**
+- `id` (PK, UUID ou Serial)
+- `email` (unique, string)
+- `password_hash` (string)
+- `created_at` (timestamp)
+
+**Table `profile` :**
+- `user_id` (FK → user.id, unique)
+- `pseudo` (string, nullable)
+- `avatar_url` (string, nullable)
+- `first_name` (string, nullable)
+- `last_name` (string, nullable)
+
+**Table `run` :**
+- `id` (PK, UUID ou Serial)
+- `user_id` (FK → user.id)
+- `date` (timestamp)
+- `duration_seconds` (integer)
+- `pattern_json` (JSON, configuration fractionné ex: `{ "fast": 60, "slow": 60 }`)
+- `created_at` (timestamp)
+
+**État actuel :** Le schéma Prisma est vide. Voir `.cursor/DATABASE_SCHEMA.md` pour le schéma Prisma complet à implémenter.
+
 ### Prochaines étapes planifiées
 
-**Priorité Haute 🔴 :**
-1. **Définir le schéma Prisma** - Créer les modèles User, Training, TrainingSession, Workout
-2. **Implémenter l'authentification complète** - Créer AuthModule avec endpoints login/register
-3. **Créer les endpoints API métier** - CRUD pour les entraînements et utilisateurs
-4. **Ajouter la documentation API** - Installer et configurer Swagger/OpenAPI
+**Phase 1 - Backend (En cours)**
+1. ✅ Setup NestJS + PostgreSQL + Prisma (PrismaModule configuré)
+2. ❌ Définir le schéma Prisma (modèles User, Profile, Run)
+3. ❌ AuthModule (signup, login, forgot-password)
+4. ❌ UsersModule (profil utilisateur GET/PATCH /users/me)
+5. ❌ RunsModule (CRUD courses GET/POST /runs)
 
-**Priorité Moyenne 🟡 :**
-5. **Mettre en place CI/CD** - GitHub Actions pour tests et build automatiques
-6. **Améliorer la gestion d'erreurs** - Créer un filtre d'exceptions global
-7. **Augmenter la couverture de tests** - Tests pour tous les services et endpoints
-8. **Configuration multi-environnements** - Créer `.env.example` et configurer dev/staging/prod
+**Phase 2 - Mobile (Auth)**
+1. ❌ Setup React Native + Tamagui (partiellement fait)
+2. ❌ Écrans d'authentification (signup, login, forgot-password)
+3. ✅ Stockage sécurisé du token JWT (service storage.ts existant)
+4. ❌ Appel GET /users/me pour vérifier l'auth
 
-**Priorité Basse 🟢 :**
-9. **Optimisations de performance** - Cache Redis, pagination, optimisation Prisma
-10. **Améliorer le mobile** - Navigation complète, écrans principaux, gestion offline
-11. **Monitoring et observabilité** - Intégration Sentry, métriques, logs structurés
-12. **Documentation supplémentaire** - Guide de contribution, ADR, guide de déploiement
+**Phase 3 - Mobile (Chrono)**
+1. ❌ Écran chronomètre fonctionnel
+2. ❌ Notifications voix/vibration
+3. ❌ POST /runs à l'arrêt du chrono
+4. ❌ BackgroundTimer pour chrono en arrière-plan
+
+**Phase 4 - Mobile (Dashboard)**
+1. ❌ GET /runs pour afficher l'historique
+2. ❌ Tri et affichage des courses
+3. ❌ Statistiques et infos perso
+
+**Voir `.cursor/DEVELOPMENT_PHASES.md` pour le détail complet des phases.**
 
 ### Dette technique identifiée
 | Issue | Impact | Effort estimé | Priorité | Fichier/Module |
 |-------|--------|---------------|----------|----------------|
 | Schéma Prisma vide | Bloque toute utilisation de la base de données | 2-4h | 🔴 Haute | `prisma/schema.prisma` |
 | Module AuthModule manquant | Authentification non fonctionnelle | 4-8h | 🔴 Haute | `src/auth/` (à créer) |
+| Module UsersModule manquant | Gestion profil utilisateur impossible | 3-5h | 🔴 Haute | `src/users/` (à créer) |
+| Module RunsModule manquant | Gestion des courses impossible | 3-5h | 🔴 Haute | `src/runs/` (à créer) |
+| Écrans mobile Auth non créés | Impossible de s'inscrire/se connecter | 6-10h | 🔴 Haute | `mobile/src/screens/auth/` (à créer) |
+| Chrono non implémenté | Fonctionnalité principale manquante | 8-12h | 🔴 Haute | `mobile/src/screens/timer/` (à créer) |
+| Dashboard mobile non implémenté | Impossible de consulter l'historique | 4-6h | 🟡 Moyenne | `mobile/src/screens/dashboard/` (à créer) |
 | Pas de gestion d'erreurs centralisée | Erreurs non standardisées, difficile à déboguer | 2-3h | 🟡 Moyenne | `src/common/filters/` (à créer) |
 | Pas de validation des DTOs | Entrées utilisateur non validées, risques sécurité | 3-5h | 🟡 Moyenne | Tous les controllers |
 | URL API hardcodée dans mobile | Configuration non flexible pour différents environnements | 1h | 🟡 Moyenne | `mobile/src/services/api.ts` |
 | Pas de refresh token automatique | Expiration des tokens non gérée automatiquement | 2-3h | 🟡 Moyenne | `mobile/src/services/api.ts` |
 | Pas de CORS configuré | Problèmes de connexion mobile possibles | 30min | 🟡 Moyenne | `src/main.ts` |
+| BackgroundTimer non configuré | Chrono ne fonctionne pas en arrière-plan | 2-3h | 🟡 Moyenne | `mobile/` (à installer et configurer) |
 | Couverture de tests limitée | Risques de régression, maintenance difficile | 8-16h | 🟡 Moyenne | Tous les modules |
 | Pas de CI/CD | Pas d'automatisation, risques de déploiement | 4-6h | 🟡 Moyenne | `.github/workflows/` (à créer) |
 | Pas de logging structuré | Difficile de déboguer en production | 2-3h | 🟢 Basse | `src/common/logger/` (à créer) |
 | Pas de documentation API | Difficile pour les développeurs frontend | 2-3h | 🟡 Moyenne | Swagger à configurer |
+| S3 pour avatars non configuré | Upload d'avatars impossible | 3-4h | 🟢 Basse | Configuration AWS S3 |
+
+### Points d'attention
+- [ ] Implémenter le refresh token pour éviter les déconnexions fréquentes
+- [ ] Gérer les permissions Android pour les notifications et vibrations
+- [ ] Prévoir la gestion du chrono en arrière-plan (BackgroundTimer)
+- [ ] Optimiser les appels API (cache, retry logic)
+- [ ] Prévoir la sync offline (courses enregistrées hors connexion)
+- [ ] Gérer les erreurs réseau de manière élégante côté mobile
+- [ ] Implémenter la pagination pour l'historique des courses
+- [ ] Optimiser les performances du chrono (éviter les re-renders inutiles)
 
 ### Refactoring souhaité
 - **Centraliser la configuration** : Créer un module ConfigModule avec validation des variables d'environnement
@@ -361,6 +549,7 @@ psql -U postgres -d monkey_run -c "SELECT version();"
 - **Optimiser les requêtes Prisma** : Ajouter des index, optimiser les relations, éviter les N+1 queries
 - **Créer des services de cache** : Implémenter Redis pour les requêtes fréquentes
 - **Standardiser les réponses API** : Créer des interceptors pour formater toutes les réponses de manière cohérente
+- **Créer des hooks React réutilisables** : Pour la gestion de l'auth, des appels API, etc.
 
 ---
 
