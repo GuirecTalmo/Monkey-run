@@ -407,6 +407,21 @@ Le fichier `README.md` est **très complet** et contient :
 
 **Note** : Le guide de contribution pourra être créé dans une phase ultérieure si nécessaire.
 
+### Documentation Cursor (.cursor/)
+
+**État actuel** : ✅ **Documentation complémentaire disponible**
+
+Le dossier `.cursor/` contient une documentation complémentaire importante pour le développement :
+
+- **`PROJECT_CONTEXT.md`** : Contexte et historique du projet, état actuel, architecture détaillée
+- **`DATABASE_SCHEMA.md`** : Schéma de base de données Prisma complet avec modèles et relations
+- **`API_DOCUMENTATION.md`** : Documentation des endpoints API et spécifications
+- **`DEVELOPMENT_PHASES.md`** : Phases de développement et roadmap détaillée
+- **`MODIFICATION_TEMPLATE.md`** : Template pour documenter les modifications
+- **`rules`** : Règles et conventions de développement
+
+**Note importante** : Cette documentation dans `.cursor/` doit être prise en compte lors de l'analyse et du développement du projet, car elle contient des spécifications détaillées, des décisions architecturales et des guides de développement complémentaires au présent document.
+
 ---
 
 ## 10. Gestion de Version et CI/CD
