@@ -1,6 +1,6 @@
 # Schéma de Base de Données - Monkey-run
 
-**Dernière mise à jour :** 2026-01-15 21:44:09
+**Dernière mise à jour :** 2026-01-28
 
 Ce document décrit le schéma de base de données Prisma pour l'application Monkey-run.
 
@@ -13,7 +13,7 @@ Ce document décrit le schéma de base de données Prisma pour l'application Mon
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -336,4 +336,4 @@ const passwordHash = await bcrypt.hash(password, saltRounds);
 
 ---
 
-**Note :** Ce schéma doit être implémenté dans `prisma/schema.prisma` et les migrations doivent être créées avant toute utilisation de Prisma Client.
+**Note :** Ce schéma est implémenté dans `prisma/schema.prisma`. La migration initiale se trouve dans `prisma/migrations/20260128223000_init/`. Exécuter `npm run prisma:migrate` puis `npm run prisma:studio` une fois `DATABASE_URL` configurée dans `.env`.

@@ -49,7 +49,7 @@
 
 ## ⚠️ Pièges Connus
 
-- Schéma Prisma vide (aucun modèle défini)
+- Migration Prisma non appliquée (schéma défini ; configurer DATABASE_URL et lancer `npm run prisma:migrate`)
 - Authentification non implémentée (dépendances présentes, module manquant)
 - URL API hardcodée dans mobile/src/services/api.ts
 - Pas de gestion d'erreurs centralisée
@@ -68,7 +68,7 @@
 - `src/prisma/prisma.service.ts` - Service global base de données
 - `mobile/src/services/api.ts` - Client HTTP centralisé
 - `mobile/src/services/storage.ts` - Stockage sécurisé
-- `prisma/schema.prisma` - Schéma base de données (vide actuellement)
+- `prisma/schema.prisma` - Schéma base de données (User, Profile, Run définis)
 - `src/main.ts` - Point d'entrée backend
 
 ## 📚 Documentation

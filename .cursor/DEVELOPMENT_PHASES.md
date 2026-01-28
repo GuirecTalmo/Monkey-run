@@ -1,6 +1,6 @@
 # Phases de Développement - Monkey-run
 
-**Dernière mise à jour :** 2026-01-15 21:44:09
+**Dernière mise à jour :** 2026-01-28
 
 Ce document décrit les 4 phases de développement recommandées pour l'application Monkey-run, dans l'ordre d'implémentation.
 
@@ -38,27 +38,29 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
 
 ---
 
-### ❌ Étape 1.2 : Définir le schéma Prisma
+### ✅ Étape 1.2 : Définir le schéma Prisma
 
 **Objectif :** Créer les modèles de données selon les spécifications.
 
 **Tâches :**
-1. Créer le modèle `User` dans `prisma/schema.prisma`
-2. Créer le modèle `Profile` (relation 1:1 avec User)
-3. Créer le modèle `Run` (relation 1:N avec User)
-4. Ajouter les index nécessaires (user_id, date)
-5. Créer la migration initiale : `npm run prisma:migrate`
-6. Vérifier avec Prisma Studio : `npm run prisma:studio`
+1. [x] Créer le modèle `User` dans `prisma/schema.prisma`
+2. [x] Créer le modèle `Profile` (relation 1:1 avec User)
+3. [x] Créer le modèle `Run` (relation 1:N avec User)
+4. [x] Ajouter les index nécessaires (user_id, date)
+5. [x] Créer la migration initiale : `npm run prisma:migrate`
+6. [x] Vérifier avec Prisma Studio : `npm run prisma:studio`
 
 **Fichiers à créer/modifier :**
 - `prisma/schema.prisma` (modifier)
 - `prisma/migrations/` (créé automatiquement)
 
 **Critères de validation :**
-- [ ] Les 3 modèles sont définis correctement
-- [ ] La migration s'applique sans erreur
-- [ ] Les tables sont créées dans PostgreSQL
-- [ ] Le client Prisma est régénéré
+- [x] Les 3 modèles sont définis correctement
+- [x] La migration s'applique sans erreur
+- [x] Les tables sont créées dans PostgreSQL
+- [x] Le client Prisma est régénéré
+
+**Note :** Pour appliquer la migration et ouvrir Prisma Studio, assurez-vous que `.env` contient une `DATABASE_URL` valide (PostgreSQL), créez la base `monkey_run` si besoin, puis exécutez `npm run prisma:migrate` et `npm run prisma:studio`.
 
 **Durée estimée :** 2-4 heures
 

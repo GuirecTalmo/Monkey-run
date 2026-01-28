@@ -151,7 +151,8 @@ Monkey-run/
 │   └── main.ts                         # Point d'entrée de l'application
 │
 ├── 📦 prisma/                          # Configuration Prisma
-│   └── schema.prisma                   # Schéma de base de données (vide actuellement)
+│   ├── schema.prisma                   # Schéma base de données (User, Profile, Run)
+│   └── migrations/                     # Migrations (20260128223000_init)
 │
 ├── 🧪 test/                            # Tests end-to-end
 │   ├── app.e2e-spec.ts                 # Tests E2E de base
@@ -249,7 +250,7 @@ async function bootstrap() {
 | `PORT` | Port du serveur | `3000` | ⚠️ Optionnel (défaut: 3000) |
 | `CORS_ORIGIN` | Origine CORS autorisée | `http://localhost:8081` | ⚠️ Optionnel |
 
-**⚠️ Problème identifié** : Aucun fichier `.env.example` n'est présent pour guider la configuration.
+**État actuel** : `.env.example` existe ; copier en `.env` et adapter les valeurs (DATABASE_URL, JWT_SECRET, etc.).
 
 #### Mobile
 
@@ -277,28 +278,16 @@ async function bootstrap() {
 
 ### Schéma de Données
 
-**⚠️ Problème identifié** : Le fichier `prisma/schema.prisma` est **vide** (seulement la configuration du générateur et de la datasource). Aucun modèle de données n'est défini.
+**État actuel** : Le schéma `prisma/schema.prisma` est défini avec les modèles User, Profile et Run (relation 1:1 User–Profile, 1:N User–Run). Index sur `run.user_id` et `run.date`. Voir `.cursor/DATABASE_SCHEMA.md` pour la référence complète.
 
-**Structure actuelle** :
-```prisma
-generator client {
-  provider = "prisma-client"
-}
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-```
-
-**Modèles à créer** (selon le MVP) :
-- `User` : Utilisateurs de l'application
-- `Profile` : Profil utilisateur (pseudo, avatar, nom, prénom)
-- `Run` : Courses enregistrées (date, durée, pattern de fractionné)
+**Modèles définis** :
+- `User` : Utilisateurs (id, email, passwordHash, createdAt)
+- `Profile` : Profil utilisateur (pseudo, avatar_url, first_name, last_name), relation 1:1 avec User
+- `Run` : Courses enregistrées (date, durationSeconds, patternJson), relation 1:N avec User
 
 ### Migrations
 
-- **État actuel** : Aucune migration n'existe (schéma vide)
+- **État actuel** : Migration initiale `20260128223000_init` dans `prisma/migrations/`. À appliquer avec `npm run prisma:migrate` une fois `DATABASE_URL` configurée dans `.env`.
 - **Scripts disponibles** :
   - `npm run prisma:migrate` : Créer et appliquer les migrations
   - `npm run prisma:migrate:deploy` : Appliquer les migrations en production
@@ -548,7 +537,7 @@ Le dossier `.cursor/` contient une documentation complémentaire importante pour
 
 ### ⚠️ Points d'Attention
 
-1. **Schéma Prisma vide** : Aucun modèle de données défini
+1. **Migration Prisma à appliquer** : Schéma défini (User, Profile, Run). Configurer `DATABASE_URL` dans `.env` et exécuter `npm run prisma:migrate`.
 2. **Authentification non implémentée** : Dépendances installées mais module AuthModule manquant
 3. **Couverture de tests limitée** : Seulement les fichiers de base testés
 4. **Pas de gestion d'erreurs centralisée** : Gestion d'erreurs à améliorer
@@ -556,7 +545,7 @@ Le dossier `.cursor/` contient une documentation complémentaire importante pour
 
 ### 🔴 Dettes Techniques Potentielles
 
-1. **Base de données** : Schéma à définir complètement (User, Profile, Run)
+1. **Base de données** : Schéma défini (User, Profile, Run). Migration initiale créée ; à appliquer.
 2. **Authentification** : Module complet à implémenter (signup, login, forgot-password)
 3. **API** : Endpoints métier à créer (UsersModule, RunsModule)
 4. **Mobile** : Navigation et écrans à développer (Auth, Timer, Dashboard)
@@ -570,10 +559,9 @@ Le dossier `.cursor/` contient une documentation complémentaire importante pour
 
 ### Priorité Haute 🔴
 
-1. **Définir le schéma Prisma**
-   - Créer les modèles `User`, `Profile`, `Run`
-   - Générer les migrations initiales
-   - Documenter le modèle de données
+1. **Schéma Prisma et migrations** ✅ (fait)
+   - Modèles `User`, `Profile`, `Run` définis ; migration `20260128223000_init` créée
+   - À faire : configurer `DATABASE_URL` dans `.env`, exécuter `npm run prisma:migrate`
 
 2. **Implémenter l'authentification complète**
    - Créer le module `AuthModule`
@@ -603,7 +591,7 @@ Le dossier `.cursor/` contient une documentation complémentaire importante pour
    - Tests E2E pour les flux critiques
 
 7. **Configuration multi-environnements**
-   - Créer `.env.example`
+   - `.env.example` existe ; étendre si besoin (staging, prod)
    - Validation des variables d'environnement
 
 **Note** : Les fonctionnalités suivantes sont prévues pour les versions futures (hors MVP) :
@@ -642,12 +630,9 @@ Le dossier `.cursor/` contient une documentation complémentaire importante pour
 **Backend** :
 - [ ] Cloner le repository
 - [ ] `npm install` à la racine
-- [ ] Créer le fichier `.env` avec les variables requises :
-  - [ ] `DATABASE_URL`
-  - [ ] `JWT_SECRET`
-  - [ ] `JWT_EXPIRATION`
+- [ ] Copier `.env.example` en `.env` et renseigner : `DATABASE_URL`, `JWT_SECRET`, `JWT_EXPIRATION`
 - [ ] Créer la base de données PostgreSQL : `CREATE DATABASE monkey_run;`
-- [ ] `npm run prisma:migrate` (une fois le schéma défini)
+- [ ] `npm run prisma:migrate` pour appliquer la migration initiale
 - [ ] `npm run start:dev` pour démarrer le serveur
 
 **Mobile** :
@@ -665,7 +650,7 @@ Le dossier `.cursor/` contient une documentation complémentaire importante pour
 - [ ] Linting OK : `npm run lint`
 
 #### Prochaines Étapes de Développement (MVP)
-- [ ] Définir le schéma Prisma (User, Profile, Run)
+- [x] Définir le schéma Prisma (User, Profile, Run) — migration `20260128223000_init` créée
 - [ ] Implémenter AuthModule (signup, login, forgot-password)
 - [ ] Implémenter UsersModule (GET/PATCH /users/me)
 - [ ] Implémenter RunsModule (GET/POST /runs)

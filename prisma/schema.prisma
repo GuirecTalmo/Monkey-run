@@ -1,14 +1,55 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+// ============================================
+// MODÈLES
+// ============================================
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  profile Profile?
+  runs    Run[]
+
+  @@map("user")
+}
+
+model Profile {
+  id        String  @id @default(uuid())
+  userId    String  @unique @map("user_id")
+  pseudo    String?
+  avatarUrl String? @map("avatar_url")
+  firstName String? @map("first_name")
+  lastName  String? @map("last_name")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profile")
+}
+
+model Run {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  date            DateTime
+  durationSeconds Int      @map("duration_seconds")
+  patternJson     Json     @map("pattern_json")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([date])
+  @@map("run")
 }
