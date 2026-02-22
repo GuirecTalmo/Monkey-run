@@ -1,6 +1,6 @@
 # Documentation API - Monkey-run
 
-**Dernière mise à jour :** 2026-01-15 21:44:09
+**Dernière mise à jour :** 2026-02-22
 
 Cette documentation décrit tous les endpoints de l'API backend pour l'application Monkey-run.
 
@@ -8,7 +8,9 @@ Cette documentation décrit tous les endpoints de l'API backend pour l'applicati
 
 ## Base URL
 
-- **Développement :** `http://localhost:3000`
+Tous les endpoints sont préfixés par `/api`.
+
+- **Développement :** `http://localhost:3000/api`
 - **Production :** `https://api.monkey-run.com` (à configurer)
 
 ---
@@ -22,7 +24,7 @@ L'API utilise l'authentification JWT (JSON Web Token). La plupart des endpoints 
 Authorization: Bearer <token>
 ```
 
-Le token est obtenu via l'endpoint `POST /auth/login` et doit être stocké de manière sécurisée côté mobile (react-native-encrypted-storage).
+Le token est obtenu via `POST /api/auth/login` ou `POST /api/auth/signup` et doit être envoyé dans le header `Authorization: Bearer <token>`. À stocker de manière sécurisée côté mobile (react-native-encrypted-storage).
 
 ---
 
@@ -30,7 +32,7 @@ Le token est obtenu via l'endpoint `POST /auth/login` et doit être stocké de m
 
 ### 🔐 Auth (Public)
 
-#### POST /auth/signup
+#### POST /api/auth/signup
 Inscription d'un nouvel utilisateur.
 
 **Request Body :**
@@ -48,11 +50,10 @@ Inscription d'un nouvel utilisateur.
 **Response Success (201 Created) :**
 ```json
 {
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "user": {
     "id": "uuid",
-    "email": "user@example.com",
-    "created_at": "2026-01-15T21:00:00Z"
+    "email": "user@example.com"
   }
 }
 ```
@@ -70,14 +71,14 @@ Inscription d'un nouvel utilisateur.
 ```json
 {
   "statusCode": 409,
-  "message": "Email already exists",
+  "message": "Un compte existe déjà avec cet email.",
   "error": "Conflict"
 }
 ```
 
 ---
 
-#### POST /auth/login
+#### POST /api/auth/login
 Connexion d'un utilisateur existant.
 
 **Request Body :**
@@ -92,19 +93,13 @@ Connexion d'un utilisateur existant.
 - `email` : string, email valide, requis
 - `password` : string, requis
 
-**Response Success (200 OK) :**
+**Response Success (201 Created) :**
 ```json
 {
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "user": {
     "id": "uuid",
-    "email": "user@example.com",
-    "profile": {
-      "pseudo": "Runner123",
-      "first_name": "John",
-      "last_name": "Doe",
-      "avatar_url": null
-    }
+    "email": "user@example.com"
   }
 }
 ```
@@ -113,15 +108,15 @@ Connexion d'un utilisateur existant.
 ```json
 {
   "statusCode": 401,
-  "message": "Invalid credentials",
+  "message": "Email ou mot de passe incorrect.",
   "error": "Unauthorized"
 }
 ```
 
 ---
 
-#### POST /auth/forgot-password
-Demande de réinitialisation de mot de passe.
+#### POST /api/auth/forgot-password
+Demande de réinitialisation de mot de passe (stub : message uniquement, pas d’email envoyé pour l’instant).
 
 **Request Body :**
 ```json
@@ -133,14 +128,21 @@ Demande de réinitialisation de mot de passe.
 **Validation :**
 - `email` : string, email valide, requis
 
-**Response Success (200 OK) :**
+**Response Success (201 Created) — email existant :**
 ```json
 {
-  "message": "Password reset email sent"
+  "message": "Si un compte existe pour cet email, un lien de réinitialisation vous a été envoyé."
 }
 ```
 
-**Note :** Pour des raisons de sécurité, la réponse est identique même si l'email n'existe pas.
+**Response Error (404 Not Found) — email inexistant :**
+```json
+{
+  "statusCode": 404,
+  "message": "Aucun compte associé à cet email.",
+  "error": "Not Found"
+}
+```
 
 **Response Error (400 Bad Request) :**
 ```json
@@ -155,7 +157,7 @@ Demande de réinitialisation de mot de passe.
 
 ### 👤 Users (Authentifié)
 
-#### GET /users/me
+#### GET /api/users/me
 Récupère le profil de l'utilisateur connecté.
 
 **Headers :**
@@ -168,12 +170,13 @@ Authorization: Bearer <token>
 {
   "id": "uuid",
   "email": "user@example.com",
-  "created_at": "2026-01-15T21:00:00Z",
+  "createdAt": "2026-01-15T21:00:00.000Z",
   "profile": {
+    "id": "uuid",
     "pseudo": "Runner123",
-    "first_name": "John",
-    "last_name": "Doe",
-    "avatar_url": "https://s3.amazonaws.com/avatars/user123.jpg"
+    "firstName": "John",
+    "lastName": "Doe",
+    "avatarUrl": "https://example.com/avatar.jpg"
   }
 }
 ```
@@ -189,7 +192,7 @@ Authorization: Bearer <token>
 
 ---
 
-#### PATCH /users/me
+#### PATCH /api/users/me
 Met à jour le profil de l'utilisateur connecté.
 
 **Headers :**
@@ -201,34 +204,21 @@ Authorization: Bearer <token>
 ```json
 {
   "pseudo": "NewPseudo",
-  "first_name": "Jane",
-  "last_name": "Smith",
-  "avatar_url": "https://s3.amazonaws.com/avatars/user123.jpg"
+  "firstName": "Jane",
+  "lastName": "Smith",
+  "avatarUrl": "https://example.com/avatar.jpg"
 }
 ```
 
 **Validation :**
 - `pseudo` : string, optionnel, max 50 caractères
-- `first_name` : string, optionnel, max 100 caractères
-- `last_name` : string, optionnel, max 100 caractères
-- `avatar_url` : string, optionnel, URL valide
+- `firstName` : string, optionnel, max 100 caractères
+- `lastName` : string, optionnel, max 100 caractères
+- `avatarUrl` : string, optionnel, URL valide
 
 **Note :** Tous les champs sont optionnels. Seuls les champs fournis seront mis à jour.
 
-**Response Success (200 OK) :**
-```json
-{
-  "id": "uuid",
-  "email": "user@example.com",
-  "created_at": "2026-01-15T21:00:00Z",
-  "profile": {
-    "pseudo": "NewPseudo",
-    "first_name": "Jane",
-    "last_name": "Smith",
-    "avatar_url": "https://s3.amazonaws.com/avatars/user123.jpg"
-  }
-}
-```
+**Response Success (200 OK) :** même forme que GET /api/users/me (profil complet avec champs en camelCase).
 
 **Response Error (400 Bad Request) :**
 ```json
@@ -241,7 +231,7 @@ Authorization: Bearer <token>
 
 ---
 
-#### PATCH /users/me/password
+#### PATCH /api/users/me/password
 Change le mot de passe de l'utilisateur connecté.
 
 **Headers :**
@@ -252,37 +242,23 @@ Authorization: Bearer <token>
 **Request Body :**
 ```json
 {
-  "current_password": "OldPassword123!",
-  "new_password": "NewPassword456!"
+  "currentPassword": "OldPassword123!",
+  "newPassword": "NewPassword456!"
 }
 ```
 
 **Validation :**
-- `current_password` : string, requis
-- `new_password` : string, minimum 8 caractères, requis
+- `currentPassword` : string, requis
+- `newPassword` : string, minimum 8 caractères, requis
 
-**Response Success (200 OK) :**
-```json
-{
-  "message": "Password updated successfully"
-}
-```
+**Response Success (200 OK) :** corps vide.
 
 **Response Error (400 Bad Request) :**
 ```json
 {
   "statusCode": 400,
-  "message": ["new_password must be longer than or equal to 8 characters"],
+  "message": "Mot de passe actuel incorrect.",
   "error": "Bad Request"
-}
-```
-
-**Response Error (401 Unauthorized) :**
-```json
-{
-  "statusCode": 401,
-  "message": "Current password is incorrect",
-  "error": "Unauthorized"
 }
 ```
 
@@ -290,8 +266,8 @@ Authorization: Bearer <token>
 
 ### 🏃 Runs (Authentifié)
 
-#### GET /runs
-Récupère la liste des courses de l'utilisateur connecté, triées par date (plus récentes en premier).
+#### GET /api/runs
+Récupère la liste des courses de l'utilisateur connecté, triées par date.
 
 **Headers :**
 ```
@@ -305,37 +281,23 @@ Authorization: Bearer <token>
 
 **Example Request :**
 ```
-GET /runs?limit=10&offset=0&order=desc
+GET /api/runs?limit=10&offset=0&order=desc
 ```
 
 **Response Success (200 OK) :**
 ```json
 {
-  "runs": [
+  "items": [
     {
       "id": "uuid",
-      "date": "2026-01-15T20:30:00Z",
-      "duration_seconds": 1800,
-      "pattern_json": {
-        "fast": 60,
-        "slow": 60
-      },
-      "created_at": "2026-01-15T20:35:00Z"
-    },
-    {
-      "id": "uuid",
-      "date": "2026-01-14T19:00:00Z",
-      "duration_seconds": 2400,
-      "pattern_json": {
-        "fast": 90,
-        "slow": 60
-      },
-      "created_at": "2026-01-14T19:10:00Z"
+      "userId": "uuid",
+      "date": "2026-01-15T20:30:00.000Z",
+      "durationSeconds": 1800,
+      "patternJson": { "warmup": 300, "intervals": [] },
+      "createdAt": "2026-01-15T20:35:00.000Z"
     }
   ],
-  "total": 25,
-  "limit": 10,
-  "offset": 0
+  "total": 25
 }
 ```
 
@@ -350,7 +312,7 @@ GET /runs?limit=10&offset=0&order=desc
 
 ---
 
-#### POST /runs
+#### POST /api/runs
 Crée une nouvelle course pour l'utilisateur connecté.
 
 **Headers :**
@@ -361,34 +323,29 @@ Authorization: Bearer <token>
 **Request Body :**
 ```json
 {
-  "date": "2026-01-15T20:30:00Z",
-  "duration_seconds": 1800,
-  "pattern_json": {
-    "fast": 60,
-    "slow": 60
+  "date": "2026-01-15T20:30:00.000Z",
+  "durationSeconds": 1800,
+  "patternJson": {
+    "warmup": 300,
+    "intervals": [{ "run": 400, "rest": 200 }]
   }
 }
 ```
 
 **Validation :**
-- `date` : string, date ISO 8601, requis
-- `duration_seconds` : number, entier positif, requis
-- `pattern_json` : object JSON, requis
-  - `fast` : number, entier positif (secondes de course rapide)
-  - `slow` : number, entier positif (secondes de récupération)
+- `date` : date ISO 8601 (transformée en Date), requise
+- `durationSeconds` : number, entier ≥ 0, requis
+- `patternJson` : object JSON, requis (structure libre pour le pattern de fractionné)
 
 **Response Success (201 Created) :**
 ```json
 {
   "id": "uuid",
-  "user_id": "uuid",
-  "date": "2026-01-15T20:30:00Z",
-  "duration_seconds": 1800,
-  "pattern_json": {
-    "fast": 60,
-    "slow": 60
-  },
-  "created_at": "2026-01-15T20:35:00Z"
+  "userId": "uuid",
+  "date": "2026-01-15T20:30:00.000Z",
+  "durationSeconds": 1800,
+  "patternJson": { "warmup": 300, "intervals": [] },
+  "createdAt": "2026-01-15T20:35:00.000Z"
 }
 ```
 
@@ -443,7 +400,7 @@ Pour les autres erreurs, `message` est une chaîne de caractères.
 
 ## Notes importantes
 
-1. **Sécurité** : Tous les endpoints sauf `/auth/*` nécessitent un token JWT valide.
+1. **Sécurité** : Tous les endpoints sauf `POST /api/auth/signup`, `POST /api/auth/login` et `POST /api/auth/forgot-password` nécessitent un token JWT valide dans le header `Authorization: Bearer <token>`.
 2. **Validation** : Toutes les entrées sont validées côté serveur avec `class-validator`.
 3. **Hashage** : Les mots de passe sont hashés avec bcrypt avant stockage.
 4. **Dates** : Toutes les dates sont au format ISO 8601 (UTC).
@@ -458,33 +415,23 @@ Pour les autres erreurs, `message` est une chaîne de caractères.
 
 ```bash
 # 1. Inscription
-curl -X POST http://localhost:3000/auth/signup \
+curl -X POST http://localhost:3000/api/auth/signup \
   -H "Content-Type: application/json" \
-  -d '{
-    "email": "user@example.com",
-    "password": "SecurePassword123!"
-  }'
+  -d '{"email": "user@example.com", "password": "SecurePassword123!"}'
 
-# Réponse : { "access_token": "eyJ...", "user": {...} }
+# Réponse : { "accessToken": "eyJ...", "user": { "id", "email" } }
 
 # 2. Création d'une course
-curl -X POST http://localhost:3000/runs \
+curl -X POST http://localhost:3000/api/runs \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer eyJ..." \
   -d '{
-    "date": "2026-01-15T20:30:00Z",
-    "duration_seconds": 1800,
-    "pattern_json": {
-      "fast": 60,
-      "slow": 60
-    }
+    "date": "2026-01-15T20:30:00.000Z",
+    "durationSeconds": 1800,
+    "patternJson": { "warmup": 300, "intervals": [] }
   }'
 
 # 3. Récupération de l'historique
-curl -X GET http://localhost:3000/runs \
+curl -X GET "http://localhost:3000/api/runs?limit=10&offset=0" \
   -H "Authorization: Bearer eyJ..."
 ```
-
----
-
-**Note :** Cette documentation sera mise à jour au fur et à mesure de l'implémentation des endpoints.

@@ -1,13 +1,13 @@
 # 📊 Analyse Approfondie du Projet Monkey-run
 
-**Date d'analyse** : 2024  
+**Date d'analyse** : 2024 (mise à jour 2026-02-22)  
 **Version du projet** : 0.0.1
 
 ---
 
 ## 1. Résumé Exécutif
 
-**Monkey-run** est une application complète de gestion d'entraînements de course en fractionné, composée d'un backend API sécurisé développé avec **NestJS** et d'une application mobile multiplateforme développée avec **React Native**. Le projet suit une architecture modulaire avec séparation claire entre le backend (API REST) et le frontend mobile, utilisant **PostgreSQL** comme base de données relationnelle via **Prisma ORM**. Le projet est actuellement en phase de développement initial avec une structure de base solide mais nécessitant l'implémentation complète des fonctionnalités métier (authentification, gestion des entraînements, etc.).
+**Monkey-run** est une application complète de gestion d'entraînements de course en fractionné, composée d'un backend API sécurisé (NestJS) et d'une application mobile (React Native). Le backend **Phase 1 est terminé** : API REST sous le préfixe `/api`, modules Auth (signup, login, forgot-password), Users (profil, mot de passe), Runs (CRUD courses avec pagination), Prisma + PostgreSQL, JWT, CORS et ValidationPipe. L'application mobile (React Native + Tamagui) est en place avec services API et stockage ; les écrans et la navigation restent à développer (Phase 2 et suivantes).
 
 ---
 
@@ -287,8 +287,9 @@ async function bootstrap() {
 
 ### Migrations
 
-- **État actuel** : Migration initiale `20260128223000_init` dans `prisma/migrations/`. À appliquer avec `npm run prisma:migrate` une fois `DATABASE_URL` configurée dans `.env`.
+- **État actuel** : Migration initiale `20260128223000_init` appliquée. Script `npm run db:create` disponible pour créer la base `monkey_run` si besoin.
 - **Scripts disponibles** :
+  - `npm run db:create` : Créer la base de données (PostgreSQL démarré + `DATABASE_URL` dans `.env`)
   - `npm run prisma:migrate` : Créer et appliquer les migrations
   - `npm run prisma:migrate:deploy` : Appliquer les migrations en production
   - `npm run prisma:migrate:reset` : Réinitialiser la base de données
@@ -537,21 +538,17 @@ Le dossier `.cursor/` contient une documentation complémentaire importante pour
 
 ### ⚠️ Points d'Attention
 
-1. **Migration Prisma à appliquer** : Schéma défini (User, Profile, Run). Configurer `DATABASE_URL` dans `.env` et exécuter `npm run prisma:migrate`.
-2. **Authentification non implémentée** : Dépendances installées mais module AuthModule manquant
-3. **Couverture de tests limitée** : Seulement les fichiers de base testés
-4. **Pas de gestion d'erreurs centralisée** : Gestion d'erreurs à améliorer
-5. **Configuration environnement** : Pas de gestion multi-environnements (optionnel pour MVP)
+1. **Couverture de tests** : Tests unitaires et E2E en place pour auth, users, runs ; à étendre si nouveaux modules.
+2. **Pas de gestion d'erreurs centralisée** : Filtre d'exceptions global optionnel pour standardiser les réponses.
+3. **Configuration environnement** : Pas de gestion multi-environnements (optionnel pour MVP).
+4. **Documentation API** : Référence dans `.cursor/API_DOCUMENTATION.md` ; Swagger non configuré.
 
-### 🔴 Dettes Techniques Potentielles
+### 🔴 Dettes Techniques / Prochaines étapes
 
-1. **Base de données** : Schéma défini (User, Profile, Run). Migration initiale créée ; à appliquer.
-2. **Authentification** : Module complet à implémenter (signup, login, forgot-password)
-3. **API** : Endpoints métier à créer (UsersModule, RunsModule)
-4. **Mobile** : Navigation et écrans à développer (Auth, Timer, Dashboard)
-5. **Tests** : Couverture à augmenter significativement
-6. **Chrono** : Implémenter le chronomètre avec notifications voix/vibration
-7. **BackgroundTimer** : Configurer le chrono en arrière-plan
+1. **Mobile** : Navigation et écrans à développer (Auth, Timer, Dashboard) — Phase 2 à 4.
+2. **Chrono** : Implémenter le chronomètre avec notifications voix/vibration.
+3. **BackgroundTimer** : Configurer le chrono en arrière-plan.
+4. **Swagger** : Optionnel — documenter l'API avec @nestjs/swagger.
 
 ---
 
@@ -559,22 +556,11 @@ Le dossier `.cursor/` contient une documentation complémentaire importante pour
 
 ### Priorité Haute 🔴
 
-1. **Schéma Prisma et migrations** ✅ (fait)
-   - Modèles `User`, `Profile`, `Run` définis ; migration `20260128223000_init` créée
-   - À faire : configurer `DATABASE_URL` dans `.env`, exécuter `npm run prisma:migrate`
+1. **Backend Phase 1** ✅ (terminé)
+   - Schéma Prisma, migrations, AuthModule, UsersModule, RunsModule
+   - Endpoints sous `/api` (auth, users, runs), JWT, CORS, ValidationPipe, tests
 
-2. **Implémenter l'authentification complète**
-   - Créer le module `AuthModule`
-   - Implémenter les endpoints `/auth/signup`, `/auth/login`, `/auth/forgot-password`
-   - Créer les guards JWT
-   - Tester l'authentification end-to-end
-
-3. **Créer les modules métier**
-   - `UsersModule` : GET/PATCH /users/me (profil utilisateur)
-   - `RunsModule` : GET/POST /runs (gestion des courses)
-   - Validation des DTOs avec `class-validator`
-
-4. **Développer l'application mobile**
+2. **Développer l'application mobile** (Phase 2 et suivantes)
    - Écrans d'authentification (signup, login, forgot-password)
    - Écran chronomètre avec notifications voix/vibration
    - Écran dashboard avec historique des courses

@@ -1,6 +1,6 @@
 # Phases de Développement - Monkey-run
 
-**Dernière mise à jour :** 2026-01-28
+**Dernière mise à jour :** 2026-02-22
 
 Ce document décrit les 4 phases de développement recommandées pour l'application Monkey-run, dans l'ordre d'implémentation.
 
@@ -10,7 +10,7 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
 
 | Phase | Objectif | Durée estimée | Statut |
 |-------|----------|---------------|--------|
-| **Phase 1** | Backend - Setup et modules de base | 2-3 semaines | 🔴 En cours |
+| **Phase 1** | Backend - Setup et modules de base | 2-3 semaines | ✅ Terminée |
 | **Phase 2** | Mobile - Authentification | 1-2 semaines | ⚪ À faire |
 | **Phase 3** | Mobile - Chrono fonctionnel | 1-2 semaines | ⚪ À faire |
 | **Phase 4** | Mobile - Dashboard | 1 semaine | ⚪ À faire |
@@ -27,8 +27,10 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
 
 - [x] NestJS installé et configuré
 - [x] PrismaModule créé et configuré
-- [x] PostgreSQL configuré
-- [x] Variables d'environnement documentées
+- [x] **PostgreSQL configuré** (base `monkey_run` créée, `DATABASE_URL` dans `.env`)
+- [x] Variables d'environnement documentées (`.env.example` présent)
+
+**Rappel — PostgreSQL :** Si besoin de recréer la base : `npm run db:create`. Port 5432 ou 5433 selon l’installation.
 
 **Fichiers concernés :**
 - `src/prisma/prisma.module.ts`
@@ -38,7 +40,7 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
 
 ---
 
-### ✅ Étape 1.2 : Définir le schéma Prisma
+### ✅ Étape 1.2 : Définir le schéma Prisma (FAIT)
 
 **Objectif :** Créer les modèles de données selon les spécifications.
 
@@ -47,8 +49,8 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
 2. [x] Créer le modèle `Profile` (relation 1:1 avec User)
 3. [x] Créer le modèle `Run` (relation 1:N avec User)
 4. [x] Ajouter les index nécessaires (user_id, date)
-5. [x] Créer la migration initiale : `npm run prisma:migrate`
-6. [x] Vérifier avec Prisma Studio : `npm run prisma:studio`
+5. [x] Appliquer la migration initiale : `npm run prisma:migrate`
+6. [x] Vérifier avec Prisma Studio (optionnel) : `npm run prisma:studio`
 
 **Fichiers à créer/modifier :**
 - `prisma/schema.prisma` (modifier)
@@ -58,206 +60,88 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
 - [x] Les 3 modèles sont définis correctement
 - [x] La migration s'applique sans erreur
 - [x] Les tables sont créées dans PostgreSQL
-- [x] Le client Prisma est régénéré
+- [x] Le client Prisma régénéré après migration
 
-**Note :** Pour appliquer la migration et ouvrir Prisma Studio, assurez-vous que `.env` contient une `DATABASE_URL` valide (PostgreSQL), créez la base `monkey_run` si besoin, puis exécutez `npm run prisma:migrate` et `npm run prisma:studio`.
+**Note :** Une fois PostgreSQL installé, la base `monkey_run` créée et `DATABASE_URL` valide dans `.env`, exécutez `npm run prisma:migrate` puis `npm run prisma:studio` pour valider l’étape 1.2.
 
 **Durée estimée :** 2-4 heures
 
 ---
 
-### ❌ Étape 1.3 : AuthModule (signup, login, forgot-password)
+### ✅ Étape 1.3 : AuthModule (signup, login, forgot-password) (FAIT)
 
 **Objectif :** Implémenter l'authentification complète avec JWT.
 
 **Tâches :**
-
-1. **Créer le module Auth**
-   - Créer `src/auth/auth.module.ts`
-   - Configurer JwtModule avec secret et expiration
-   - Configurer PassportModule avec JWT strategy
-
-2. **Créer les DTOs**
-   - `src/auth/dto/signup.dto.ts` (email, password)
-   - `src/auth/dto/login.dto.ts` (email, password)
-   - `src/auth/dto/forgot-password.dto.ts` (email)
-
-3. **Créer le service AuthService**
-   - `src/auth/auth.service.ts`
-   - Méthode `signup()` : créer utilisateur, hasher mot de passe, créer profil vide
-   - Méthode `login()` : valider credentials, générer JWT
-   - Méthode `forgotPassword()` : générer token de reset, envoyer email (stub pour l'instant)
-
-4. **Créer le controller AuthController**
-   - `src/auth/auth.controller.ts`
-   - `POST /auth/signup`
-   - `POST /auth/login`
-   - `POST /auth/forgot-password`
-
-5. **Créer la stratégie JWT**
-   - `src/auth/strategies/jwt.strategy.ts`
-   - Extraire le token du header Authorization
-   - Valider le token et retourner le payload
-
-6. **Créer le guard JWT**
-   - `src/auth/guards/jwt-auth.guard.ts`
-   - Protéger les routes nécessitant authentification
-
-7. **Configurer CORS dans main.ts**
-   - Autoriser les requêtes depuis le mobile
-   - Configurer les headers autorisés
-
-8. **Tests**
-   - Tests unitaires pour AuthService
-   - Tests E2E pour les endpoints /auth/*
-
-**Fichiers à créer :**
-- `src/auth/auth.module.ts`
-- `src/auth/auth.service.ts`
-- `src/auth/auth.controller.ts`
-- `src/auth/dto/signup.dto.ts`
-- `src/auth/dto/login.dto.ts`
-- `src/auth/dto/forgot-password.dto.ts`
-- `src/auth/strategies/jwt.strategy.ts`
-- `src/auth/guards/jwt-auth.guard.ts`
-- `src/auth/auth.service.spec.ts`
-- `test/auth.e2e-spec.ts`
-
-**Fichiers à modifier :**
-- `src/app.module.ts` (importer AuthModule)
-- `src/main.ts` (configurer CORS, ValidationPipe)
+1. [x] Module Auth (auth.module.ts, JwtModule, PassportModule, JWT strategy)
+2. [x] DTOs signup, login, forgot-password (class-validator)
+3. [x] AuthService : signup (user + profile), login (JWT), forgotPassword (stub)
+4. [x] AuthController : POST /api/auth/signup, login, forgot-password
+5. [x] JWT strategy (jwt.strategy.ts) et guard (jwt-auth.guard.ts)
+6. [x] CORS et ValidationPipe dans main.ts ; préfixe global `/api`
+7. [x] Tests unitaires AuthService et E2E /api/auth/*
 
 **Critères de validation :**
-- [ ] Inscription fonctionne (création user + profile)
-- [ ] Connexion fonctionne (retourne JWT)
-- [ ] Mot de passe oublié fonctionne (stub)
-- [ ] Les mots de passe sont hashés avec bcrypt
-- [ ] Les tokens JWT sont valides
-- [ ] Les tests passent
-
-**Durée estimée :** 4-8 heures
+- [x] Inscription fonctionne (création user + profile)
+- [x] Connexion fonctionne (retourne JWT)
+- [x] Mot de passe oublié fonctionne (stub)
+- [x] Mots de passe hashés avec bcrypt
+- [x] Tokens JWT valides
+- [x] Tests passent
 
 ---
 
-### ❌ Étape 1.4 : UsersModule (profil utilisateur)
+### ✅ Étape 1.4 : UsersModule (profil utilisateur) (FAIT)
 
 **Objectif :** Gérer le profil utilisateur (GET/PATCH /users/me).
 
 **Tâches :**
-
-1. **Créer le module Users**
-   - `src/users/users.module.ts`
-   - Importer AuthModule pour utiliser JwtAuthGuard
-
-2. **Créer les DTOs**
-   - `src/users/dto/update-profile.dto.ts` (pseudo, first_name, last_name, avatar_url)
-   - `src/users/dto/change-password.dto.ts` (current_password, new_password)
-
-3. **Créer le service UsersService**
-   - `src/users/users.service.ts`
-   - Méthode `getProfile()` : récupérer user + profile
-   - Méthode `updateProfile()` : mettre à jour le profil
-   - Méthode `changePassword()` : changer le mot de passe
-
-4. **Créer le controller UsersController**
-   - `src/users/users.controller.ts`
-   - `GET /users/me` (protégé par JwtAuthGuard)
-   - `PATCH /users/me` (protégé par JwtAuthGuard)
-   - `PATCH /users/me/password` (protégé par JwtAuthGuard)
-
-5. **Créer un decorator pour récupérer l'utilisateur**
-   - `src/users/decorators/current-user.decorator.ts`
-   - Extraire l'utilisateur depuis le token JWT
-
-6. **Tests**
-   - Tests unitaires pour UsersService
-   - Tests E2E pour les endpoints /users/*
-
-**Fichiers à créer :**
-- `src/users/users.module.ts`
-- `src/users/users.service.ts`
-- `src/users/users.controller.ts`
-- `src/users/dto/update-profile.dto.ts`
-- `src/users/dto/change-password.dto.ts`
-- `src/users/decorators/current-user.decorator.ts`
-- `src/users/users.service.spec.ts`
-- `test/users.e2e-spec.ts`
-
-**Fichiers à modifier :**
-- `src/app.module.ts` (importer UsersModule)
+1. [x] UsersModule (import AuthModule pour JwtAuthGuard)
+2. [x] DTOs update-profile (pseudo, firstName, lastName, avatarUrl), change-password (currentPassword, newPassword)
+3. [x] UsersService : getProfile(), updateProfile(), changePassword()
+4. [x] UsersController : GET /api/users/me, PATCH /api/users/me, PATCH /api/users/me/password (JwtAuthGuard)
+5. [x] Decorator CurrentUser
+6. [x] Tests unitaires et E2E /api/users/*
 
 **Critères de validation :**
-- [ ] GET /users/me retourne le profil complet
-- [ ] PATCH /users/me met à jour le profil
-- [ ] PATCH /users/me/password change le mot de passe
-- [ ] Les routes sont protégées par JWT
-- [ ] Les tests passent
-
-**Durée estimée :** 3-5 heures
+- [x] GET /api/users/me retourne le profil complet
+- [x] PATCH /api/users/me met à jour le profil
+- [x] PATCH /api/users/me/password change le mot de passe
+- [x] Les routes sont protégées par JWT
+- [x] Les tests passent
 
 ---
 
-### ❌ Étape 1.5 : RunsModule (CRUD courses)
+### ✅ Étape 1.5 : RunsModule (CRUD courses) (FAIT)
 
 **Objectif :** Gérer les courses (GET/POST /runs).
 
 **Tâches :**
-
-1. **Créer le module Runs**
-   - `src/runs/runs.module.ts`
-   - Importer AuthModule pour utiliser JwtAuthGuard
-
-2. **Créer les DTOs**
-   - `src/runs/dto/create-run.dto.ts` (date, duration_seconds, pattern_json)
-   - `src/runs/dto/query-runs.dto.ts` (limit, offset, order)
-
-3. **Créer le service RunsService**
-   - `src/runs/runs.service.ts`
-   - Méthode `create()` : créer une course pour l'utilisateur
-   - Méthode `findAll()` : récupérer les courses de l'utilisateur (avec pagination)
-
-4. **Créer le controller RunsController**
-   - `src/runs/runs.controller.ts`
-   - `GET /runs` (protégé par JwtAuthGuard, avec query params)
-   - `POST /runs` (protégé par JwtAuthGuard)
-
-5. **Tests**
-   - Tests unitaires pour RunsService
-   - Tests E2E pour les endpoints /runs/*
-
-**Fichiers à créer :**
-- `src/runs/runs.module.ts`
-- `src/runs/runs.service.ts`
-- `src/runs/runs.controller.ts`
-- `src/runs/dto/create-run.dto.ts`
-- `src/runs/dto/query-runs.dto.ts`
-- `src/runs/runs.service.spec.ts`
-- `test/runs.e2e-spec.ts`
-
-**Fichiers à modifier :**
-- `src/app.module.ts` (importer RunsModule)
+1. [x] RunsModule (import AuthModule)
+2. [x] DTOs create-run (date, durationSeconds, patternJson), query-runs (limit, offset, order)
+3. [x] RunsService : create(), findAll() avec pagination
+4. [x] RunsController : GET /api/runs, POST /api/runs (JwtAuthGuard)
+5. [x] Tests unitaires et E2E /api/runs/*
 
 **Critères de validation :**
-- [ ] GET /runs retourne les courses de l'utilisateur (triées par date)
-- [ ] POST /runs crée une nouvelle course
-- [ ] La pagination fonctionne (limit, offset)
-- [ ] Les routes sont protégées par JWT
-- [ ] Les tests passent
-
-**Durée estimée :** 3-5 heures
+- [x] GET /api/runs retourne les courses de l'utilisateur (triées par date)
+- [x] POST /api/runs crée une nouvelle course
+- [x] Pagination (limit, offset) et order (asc/desc)
+- [x] Routes protégées par JWT
+- [x] Les tests passent
 
 ---
 
 ### ✅ Checklist Phase 1
 
 - [x] Setup NestJS + PostgreSQL + Prisma
-- [ ] Schéma Prisma défini (User, Profile, Run)
-- [ ] AuthModule implémenté (signup, login, forgot-password)
-- [ ] UsersModule implémenté (GET/PATCH /users/me)
-- [ ] RunsModule implémenté (GET/POST /runs)
-- [ ] CORS configuré
-- [ ] Validation des DTOs avec class-validator
-- [ ] Tests unitaires et E2E écrits
+- [x] Schéma Prisma défini (User, Profile, Run)
+- [x] AuthModule implémenté (signup, login, forgot-password)
+- [x] UsersModule implémenté (GET/PATCH /users/me)
+- [x] RunsModule implémenté (GET/POST /runs)
+- [x] CORS configuré (main.ts)
+- [x] Validation des DTOs avec class-validator (ValidationPipe global)
+- [x] Tests unitaires et E2E écrits (auth, users, runs)
 - [ ] Documentation API (Swagger) configurée
 
 ---

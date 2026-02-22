@@ -1,13 +1,13 @@
 # Contexte et Historique du Projet
 
-**Dernière mise à jour :** 2026-01-28
+**Dernière mise à jour :** 2026-02-22
 **Version du projet :** 0.0.1
 **Agent Cursor :** Composer
 **Développeur actuel :** [À REMPLIR]
 
 ## État actuel du projet
 
-Application mobile de course en fractionné guidée (MVP). Phase actuelle : **Phase 1 - Backend (Setup initial)**. Le projet est en phase de développement initiale avec le PrismaModule configuré et le schéma Prisma défini (User, Profile, Run). L'authentification n'est pas encore développée malgré les dépendances installées, et les modules métier (AuthModule, UsersModule, RunsModule) sont à créer. Stack : React Native + Tamagui (mobile) / NestJS + PostgreSQL + Prisma (backend).
+Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend est terminée.** Le backend NestJS est opérationnel avec : PrismaModule, schéma Prisma (User, Profile, Run), AuthModule (signup, login, forgot-password, JWT), UsersModule (profil, changement de mot de passe), RunsModule (CRUD courses avec pagination). API préfixée par `/api`, CORS et ValidationPipe configurés. Tests unitaires et E2E en place. Prochaine étape : **Phase 2 - Mobile (Authentification)**. Stack : React Native + Tamagui (mobile) / NestJS + PostgreSQL + Prisma (backend).
 
 ---
 
@@ -80,10 +80,11 @@ Application mobile de course en fractionné guidée (MVP). Phase actuelle : **Ph
 ### Modules de l'application
 
 #### Backend (NestJS)
-- **PrismaModule** : Service global pour l'accès à la base de données (✅ Existant)
-- **AuthModule** : Gestion authentification (signup, login, forgot-password, JWT) (❌ À créer)
-- **UsersModule** : Gestion profil utilisateur (GET/PATCH /users/me) (❌ À créer)
-- **RunsModule** : Gestion des courses (GET/POST /runs) (❌ À créer)
+- **PrismaModule** : Service global pour l'accès à la base de données (✅)
+- **AuthModule** : Authentification (signup, login, forgot-password, JWT) (✅)
+- **UsersModule** : Profil utilisateur (GET/PATCH /users/me, PATCH /users/me/password) (✅)
+- **RunsModule** : Courses (GET /runs avec pagination, POST /runs) (✅)
+- **ConfigModule** : Variables d'environnement (✅, global)
 
 #### Mobile (React Native)
 - **Auth** : Écrans d'inscription, connexion, mot de passe oublié (❌ À créer)

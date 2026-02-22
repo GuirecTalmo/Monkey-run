@@ -1,3 +1,7 @@
+/**
+ * Configuration Prisma (CLI, migrations, generate).
+ * Charge .env via dotenv pour que DATABASE_URL soit disponible. Schéma et migrations dans prisma/.
+ */
 import "dotenv/config";
 import { defineConfig, env } from "prisma/config";
 

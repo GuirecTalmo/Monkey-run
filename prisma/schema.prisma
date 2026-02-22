@@ -12,6 +12,9 @@ datasource db {
 
 // ============================================
 // MODÈLES
+// User: compte (email, mot de passe hashé). 1:1 Profile, 1:N Run.
+// Profile: pseudo, prénom, nom, avatar (optionnels). Créé à l'inscription.
+// Run: une course (date, durée, pattern JSON). Index sur user_id et date pour les requêtes.
 // ============================================
 
 model User {
