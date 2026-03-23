@@ -138,16 +138,23 @@ Monkey-run/
 │   └── package.json
 │
 ├── 🖥️  src/                # Code source Backend NestJS
+│   ├── auth/              # Module Auth (signup, login, forgot-password, JWT)
+│   ├── users/             # Module Users (profil, mot de passe)
+│   ├── runs/              # Module Runs (CRUD courses)
 │   ├── prisma/            # Service Prisma
-│   └── ...
+│   └── main.ts
 │
 ├── 📦 prisma/              # Schéma et migrations Prisma
 │   └── schema.prisma
 │
-├── 🧪 test/                # Tests e2e
+├── 📜 scripts/             # Scripts utilitaires
+│   ├── create-db.mjs      # Création de la base monkey_run
+│   └── create-db.sql
+│
+├── 🧪 test/                # Tests e2e (auth, users, runs)
 ├── .env                    # Variables d'environnement (à créer)
-├── package.json           # Backend dependencies
-└── README.md              # Ce fichier
+├── package.json            # Backend dependencies
+└── README.md               # Ce fichier
 ```
 
 ---
@@ -182,9 +189,17 @@ Configurez les variables nécessaires (voir section [Variables d'environnement](
 
 #### Créer la base de données
 
+**Option 1 — Script npm (recommandé)** : une fois PostgreSQL installé et démarré, et `DATABASE_URL` renseignée dans `.env` :
+
 ```bash
-# Se connecter à PostgreSQL
-psql -U postgres
+npm run db:create
+```
+
+**Option 2 — Ligne de commande** :
+
+```bash
+# Se connecter à PostgreSQL (port 5432 ou 5433 selon votre installation)
+psql -U postgres -h localhost -p 5432
 
 # Créer la base de données
 CREATE DATABASE monkey_run;
@@ -225,21 +240,19 @@ npm run start:dev
 npm run start:prod
 ```
 
-Le serveur démarre sur `http://localhost:3000` par défaut.
+Le serveur démarre sur `http://localhost:3000` par défaut. L’API est préfixée par `/api` (ex. `http://localhost:3000/api`).
 
 ### 7️⃣ Vérifier l'installation
 
-Le serveur devrait démarrer sur `http://localhost:3000` par défaut.
-
 **Vérifications** :
 1. Vérifiez que le serveur démarre sans erreur dans le terminal
-2. Ouvrez votre navigateur et accédez à `http://localhost:3000`
-3. Vérifiez que la connexion à PostgreSQL fonctionne (aucune erreur de connexion dans les logs)
-4. Testez l'API avec un client REST (Postman, curl, etc.)
+2. La racine de l’API répond sur `http://localhost:3000/api`
+3. Vérifiez que la connexion à PostgreSQL fonctionne (aucune erreur dans les logs)
+4. Testez les endpoints (auth, users, runs) avec un client REST (Postman, curl, etc.)
 
 **Test rapide avec curl** :
 ```bash
-curl http://localhost:3000
+curl http://localhost:3000/api
 ```
 
 > ✅ **Le backend est prêt quand** : Le serveur démarre sans erreur et répond aux requêtes HTTP.
@@ -594,6 +607,7 @@ Cet outil vérifie automatiquement :
 | `npm run prisma:migrate:deploy` | Applique les migrations en production |
 | `npm run prisma:studio` | Ouvre Prisma Studio (interface graphique) |
 | `npm run prisma:migrate:reset` | Réinitialise la base de données |
+| `npm run db:create` | Crée la base de données `monkey_run` (si PostgreSQL est démarré) |
 
 ### Mobile (dans mobile/)
 
@@ -624,8 +638,10 @@ Backend Stack:
 
 #### Modules principaux
 - **PrismaModule** : Service global pour l'accès à la base de données
-- **AuthModule** : Gestion de l'authentification JWT (à créer)
-- **ConfigModule** : Gestion des variables d'environnement
+- **AuthModule** : Authentification JWT (signup, login, forgot-password)
+- **UsersModule** : Profil utilisateur (GET/PATCH /users/me, changement de mot de passe)
+- **RunsModule** : CRUD courses (GET/POST /runs, pagination)
+- **ConfigModule** : Variables d'environnement (global)
 
 ### Mobile (React Native)
 

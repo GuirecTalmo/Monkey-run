@@ -1,7 +1,12 @@
+/**
+ * Client HTTP partagé pour les appels à l'API backend.
+ * - baseURL : préfixe /api (configurable via API_BASE_URL ; pour Android émulateur utiliser http://10.0.2.2:3000/api)
+ * - Intercepteur requête : ajoute automatiquement Authorization: Bearer <token> depuis le stockage sécurisé
+ * - Intercepteur réponse : log des erreurs (réseau ou serveur)
+ */
 import axios, { AxiosInstance } from 'axios';
 import storageService from './storage';
 
-// Configuration de base pour le client axios
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000/api';
 
 // Création de l'instance axios avec configuration de base

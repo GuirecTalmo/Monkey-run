@@ -1,13 +1,13 @@
 # Contexte et Historique du Projet
 
-**Dernière mise à jour :** 2026-01-15 21:44:09
+**Dernière mise à jour :** 2026-02-22
 **Version du projet :** 0.0.1
 **Agent Cursor :** Composer
 **Développeur actuel :** [À REMPLIR]
 
 ## État actuel du projet
 
-Application mobile de course en fractionné guidée (MVP). Phase actuelle : **Phase 1 - Backend (Setup initial)**. Le projet est en phase de développement initiale avec seulement le PrismaModule configuré. Le schéma Prisma est vide, l'authentification n'est pas encore développée malgré les dépendances installées, et les modules métier (AuthModule, UsersModule, RunsModule) sont à créer. Stack : React Native + Tamagui (mobile) / NestJS + PostgreSQL + Prisma (backend).
+Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend est terminée.** Le backend NestJS est opérationnel avec : PrismaModule, schéma Prisma (User, Profile, Run), AuthModule (signup, login, forgot-password, JWT), UsersModule (profil, changement de mot de passe), RunsModule (CRUD courses avec pagination). API préfixée par `/api`, CORS et ValidationPipe configurés. Tests unitaires et E2E en place. Prochaine étape : **Phase 2 - Mobile (Authentification)**. Stack : React Native + Tamagui (mobile) / NestJS + PostgreSQL + Prisma (backend).
 
 ---
 
@@ -62,7 +62,7 @@ Application mobile de course en fractionné guidée (MVP). Phase actuelle : **Ph
 | Initial | React Native pour le mobile (priorité Android) | Cross-platform, code partagé, performance native | Développement unique pour Android et iOS, nécessite configuration native |
 | Initial | Tamagui pour l'UI | Design system performant et moderne, optimisation automatique | UI cohérente, meilleures performances que les composants React Native natifs |
 | Initial | Architecture modulaire NestJS | Séparation claire des responsabilités, facilité de maintenance, TypeScript natif | Structure organisée en modules (AuthModule, UsersModule, RunsModule), controllers, services |
-| Initial | Prisma comme ORM | Type-safety, migrations automatiques, génération de client, recommandé dans les specs | Accès type-safe à la base de données, migrations faciles, mais schéma vide actuellement |
+| Initial | Prisma comme ORM | Type-safety, migrations automatiques, génération de client, recommandé dans les specs | Accès type-safe à la base de données, migrations faciles. Schéma défini (User, Profile, Run) depuis 2026-01-28 |
 | Initial | JWT pour l'authentification | Standard de l'industrie, stateless, scalable, requis par les specs | Infrastructure prête mais non implémentée, nécessite Passport |
 | Initial | PostgreSQL pour la persistence | Base de données relationnelle robuste, requise par les specs | Persistance fiable, nécessite configuration et migrations |
 | Initial | Stockage sécurisé avec react-native-encrypted-storage | Sécurité des tokens JWT et données sensibles, requis par les specs | Utilisation du KeyStore Android/Keychain iOS natif, sécurité renforcée |
@@ -80,10 +80,11 @@ Application mobile de course en fractionné guidée (MVP). Phase actuelle : **Ph
 ### Modules de l'application
 
 #### Backend (NestJS)
-- **PrismaModule** : Service global pour l'accès à la base de données (✅ Existant)
-- **AuthModule** : Gestion authentification (signup, login, forgot-password, JWT) (❌ À créer)
-- **UsersModule** : Gestion profil utilisateur (GET/PATCH /users/me) (❌ À créer)
-- **RunsModule** : Gestion des courses (GET/POST /runs) (❌ À créer)
+- **PrismaModule** : Service global pour l'accès à la base de données (✅)
+- **AuthModule** : Authentification (signup, login, forgot-password, JWT) (✅)
+- **UsersModule** : Profil utilisateur (GET/PATCH /users/me, PATCH /users/me/password) (✅)
+- **RunsModule** : Courses (GET /runs avec pagination, POST /runs) (✅)
+- **ConfigModule** : Variables d'environnement (✅, global)
 
 #### Mobile (React Native)
 - **Auth** : Écrans d'inscription, connexion, mot de passe oublié (❌ À créer)
@@ -169,7 +170,7 @@ Application mobile de course en fractionné guidée (MVP). Phase actuelle : **Ph
    - **Dépendances modifiées :** Aucune
 
 #### Points d'attention
-- [ ] Le schéma Prisma doit être implémenté dans `prisma/schema.prisma` avant utilisation
+- [x] ~~Le schéma Prisma doit être implémenté dans `prisma/schema.prisma` avant utilisation~~ (fait 2026-01-28)
 - [ ] Les modules AuthModule, UsersModule, RunsModule sont à créer selon les spécifications
 - [ ] Les écrans mobile (Auth, Timer, Dashboard) sont à développer selon les phases
 - [ ] BackgroundTimer doit être installé et configuré pour le chrono en arrière-plan
@@ -184,6 +185,53 @@ Application mobile de course en fractionné guidée (MVP). Phase actuelle : **Ph
 - [x] API_DOCUMENTATION.md - Créé avec tous les endpoints détaillés
 - [x] DATABASE_SCHEMA.md - Créé avec le schéma Prisma complet
 - [x] DEVELOPMENT_PHASES.md - Créé avec le plan de développement détaillé
+
+---
+
+### 2026-01-28 - Session 3 - Schéma Prisma et migration initiale (Étape 1.2)
+**Développeur/Agent :** Cursor Agent
+**Objectif :** Définir le schéma Prisma selon `.cursor/rules` et `.cursor/DATABASE_SCHEMA.md`, cocher les tâches 1 à 6 de l'étape 1.2
+
+#### Modifications effectuées
+1. **Backend - Schéma Prisma**
+   - **Fichiers modifiés :** `prisma/schema.prisma`
+   - Modèles `User`, `Profile`, `Run` ajoutés (relation 1:1 User–Profile, 1:N User–Run). Index sur `run.user_id` et `run.date`. Générateur `prisma-client-js` pour compatibilité avec `@prisma/client`.
+   - **Tests ajoutés :** Non
+   - **Breaking changes :** Non
+
+2. **Backend - Migration initiale**
+   - **Fichiers créés :** `prisma/migrations/migration_lock.toml`, `prisma/migrations/20260128223000_init/migration.sql`
+   - Migration générée via `prisma migrate diff --from-empty --to-schema-datamodel`. À appliquer avec `npm run prisma:migrate` une fois `DATABASE_URL` configurée dans `.env`.
+
+3. **Config - Environnement**
+   - **Fichiers créés :** `.env.example`, `.env` (placeholder)
+   - **Fichiers modifiés :** `prisma.config.ts` — ajout de `import "dotenv/config"` pour charger `DATABASE_URL` depuis `.env`.
+
+4. **Docs**
+   - **Fichiers modifiés :** `.cursor/DEVELOPMENT_PHASES.md` (étape 1.2 ✅, tâches 1–6 cochées), `.cursor/PROJECT_CONTEXT.md` (journal, roadmap, dette technique).
+
+#### Dépendances ajoutées/supprimées
+- **Ajoutées :** Aucune (dotenv déjà présent via @nestjs/config)
+- **Supprimées :** Aucune
+
+---
+
+### 2026-01-28 - Session 4 - Alignement de la documentation avec l’état Prisma
+**Développeur/Agent :** Cursor Agent
+**Objectif :** Mettre à jour tous les fichiers selon PROJECT_CONTEXT pour refléter que le schéma Prisma est défini (User, Profile, Run) et la migration initiale créée.
+
+#### Modifications effectuées
+1. **Docs - PROJECT_CONTEXT.md**
+   - **Décisions architecturales :** Prisma — "schéma vide actuellement" → "Schéma défini (User, Profile, Run) depuis 2026-01-28".
+   - **Erreurs courantes :** "Schéma Prisma vide" → "Migration Prisma non appliquée" (préciser config `.env` et `npm run prisma:migrate`).
+   - **Limitations connues :** "Schéma Prisma vide" / TODO → "Migration Prisma à appliquer" (schéma défini, migration à lancer).
+   - **Limitations :** "Pas de gestion multi-environnements" — mention que `.env.example` existe.
+2. **Docs - .cursor/rules** : Pièges — "Schéma Prisma vide" remplacé par "Migration Prisma non appliquée". Fichiers critiques — `prisma/schema.prisma` "vide actuellement" → "User, Profile, Run définis".
+3. **Docs - ANALYSE_PROJET.md** : Références au schéma vide mises à jour pour refléter l’état actuel.
+
+#### Dépendances ajoutées/supprimées
+- **Ajoutées :** Aucune
+- **Supprimées :** Aucune
 
 ---
 
@@ -245,7 +293,7 @@ Application mobile de course en fractionné guidée (MVP). Phase actuelle : **Ph
 ## ⚠️ Pièges connus et erreurs à éviter
 
 ### Erreurs courantes
-- **Schéma Prisma vide** : Le fichier `prisma/schema.prisma` ne contient aucun modèle. Toute tentative d'utiliser Prisma Client échouera jusqu'à ce que le schéma soit défini et les migrations appliquées.
+- **Migration Prisma non appliquée** : Le schéma (User, Profile, Run) est défini et la migration initiale existe dans `prisma/migrations/20260128223000_init/`. Si `DATABASE_URL` n'est pas configurée dans `.env` ou si la base `monkey_run` n'existe pas, `npm run prisma:migrate` échouera. Configurer `.env` puis exécuter la migration.
 - **Authentification non implémentée** : Les dépendances JWT et Passport sont installées mais le module `AuthModule` n'existe pas. Les guards JWT ne fonctionneront pas sans implémentation.
 - **URL API hardcodée** : Dans `mobile/src/services/api.ts`, l'URL de l'API est hardcodée avec `process.env.API_BASE_URL || 'http://localhost:3000/api'`. Pour Android, utiliser `http://10.0.2.2:3000/api` au lieu de `localhost`.
 - **Pas de gestion d'erreurs centralisée** : Aucun filtre d'exceptions global n'est configuré dans NestJS. Les erreurs ne sont pas standardisées.
@@ -262,7 +310,7 @@ Application mobile de course en fractionné guidée (MVP). Phase actuelle : **Ph
 - **`.env`** : Variables d'environnement critiques. Ne jamais commiter ce fichier.
 
 ### Limitations connues
-- **Schéma Prisma vide** : Aucun modèle de données défini. TODO : Créer les modèles User, Profile, Run selon les spécifications.
+- **Migration Prisma à appliquer** : Les modèles User, Profile, Run sont définis dans `prisma/schema.prisma`. Appliquer la migration avec `npm run prisma:migrate` une fois `DATABASE_URL` configurée et la base `monkey_run` créée.
 - **Module AuthModule manquant** : À créer avec signup, login, forgot-password selon les spécifications.
 - **Module UsersModule manquant** : À créer avec GET/PATCH /users/me pour la gestion du profil.
 - **Module RunsModule manquant** : À créer avec GET/POST /runs pour la gestion des courses.
@@ -270,7 +318,7 @@ Application mobile de course en fractionné guidée (MVP). Phase actuelle : **Ph
 - **Pas de documentation API** : Swagger/OpenAPI non configuré. TODO : Installer `@nestjs/swagger` et documenter les endpoints.
 - **Pas de CI/CD** : Aucun pipeline automatisé. TODO : Configurer GitHub Actions ou GitLab CI.
 - **Pas de logging structuré** : Logs basiques uniquement. TODO : Intégrer Winston ou Pino.
-- **Pas de gestion multi-environnements** : Pas de configuration spécifique dev/staging/prod. TODO : Créer `.env.example` et configurer les environnements.
+- **Pas de gestion multi-environnements** : Pas de configuration spécifique dev/staging/prod. `.env.example` existe ; à étendre pour staging/prod si besoin.
 - **Chrono non implémenté** : Le chronomètre avec notifications voix/vibration n'est pas encore développé.
 - **Dashboard mobile non implémenté** : L'historique des courses et les statistiques ne sont pas encore développés.
 - **Refresh token non géré** : Aucun mécanisme automatique de renouvellement des tokens JWT.
@@ -479,13 +527,13 @@ psql -U postgres -d monkey_run -c "SELECT version();"
 - `pattern_json` (JSON, configuration fractionné ex: `{ "fast": 60, "slow": 60 }`)
 - `created_at` (timestamp)
 
-**État actuel :** Le schéma Prisma est vide. Voir `.cursor/DATABASE_SCHEMA.md` pour le schéma Prisma complet à implémenter.
+**État actuel :** Le schéma Prisma est défini dans `prisma/schema.prisma` (User, Profile, Run) et la migration initiale est dans `prisma/migrations/20260128223000_init/`. Voir `.cursor/DATABASE_SCHEMA.md` pour la référence.
 
 ### Prochaines étapes planifiées
 
 **Phase 1 - Backend (En cours)**
 1. ✅ Setup NestJS + PostgreSQL + Prisma (PrismaModule configuré)
-2. ❌ Définir le schéma Prisma (modèles User, Profile, Run)
+2. ✅ Définir le schéma Prisma (modèles User, Profile, Run)
 3. ❌ AuthModule (signup, login, forgot-password)
 4. ❌ UsersModule (profil utilisateur GET/PATCH /users/me)
 5. ❌ RunsModule (CRUD courses GET/POST /runs)
@@ -512,7 +560,7 @@ psql -U postgres -d monkey_run -c "SELECT version();"
 ### Dette technique identifiée
 | Issue | Impact | Effort estimé | Priorité | Fichier/Module |
 |-------|--------|---------------|----------|----------------|
-| Schéma Prisma vide | Bloque toute utilisation de la base de données | 2-4h | 🔴 Haute | `prisma/schema.prisma` |
+| ~~Schéma Prisma vide~~ | ~~Bloque toute utilisation de la base de données~~ | — | ✅ Résolu | `prisma/schema.prisma` |
 | Module AuthModule manquant | Authentification non fonctionnelle | 4-8h | 🔴 Haute | `src/auth/` (à créer) |
 | Module UsersModule manquant | Gestion profil utilisateur impossible | 3-5h | 🔴 Haute | `src/users/` (à créer) |
 | Module RunsModule manquant | Gestion des courses impossible | 3-5h | 🔴 Haute | `src/runs/` (à créer) |

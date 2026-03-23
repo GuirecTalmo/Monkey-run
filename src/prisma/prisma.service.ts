@@ -1,3 +1,7 @@
+/**
+ * Service Prisma — client ORM pour PostgreSQL.
+ * Connexion à l'init du module, déconnexion à la destruction (évite les fuites de connexions).
+ */
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
