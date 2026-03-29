@@ -1,6 +1,6 @@
 # Documentation API - Monkey-run
 
-**Dernière mise à jour :** 2026-02-22
+**Dernière mise à jour :** 2026-03-29 (revue documentaire ; endpoints inchangés)
 
 Cette documentation décrit tous les endpoints de l'API backend pour l'application Monkey-run.
 
@@ -20,6 +20,7 @@ Tous les endpoints sont préfixés par `/api`.
 L'API utilise l'authentification JWT (JSON Web Token). La plupart des endpoints nécessitent un token JWT dans le header `Authorization`.
 
 **Format :**
+
 ```
 Authorization: Bearer <token>
 ```
@@ -33,9 +34,11 @@ Le token est obtenu via `POST /api/auth/login` ou `POST /api/auth/signup` et doi
 ### 🔐 Auth (Public)
 
 #### POST /api/auth/signup
+
 Inscription d'un nouvel utilisateur.
 
 **Request Body :**
+
 ```json
 {
   "email": "user@example.com",
@@ -44,10 +47,12 @@ Inscription d'un nouvel utilisateur.
 ```
 
 **Validation :**
+
 - `email` : string, email valide, requis
 - `password` : string, minimum 8 caractères, requis
 
 **Response Success (201 Created) :**
+
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -59,15 +64,20 @@ Inscription d'un nouvel utilisateur.
 ```
 
 **Response Error (400 Bad Request) :**
+
 ```json
 {
   "statusCode": 400,
-  "message": ["email must be an email", "password must be longer than or equal to 8 characters"],
+  "message": [
+    "email must be an email",
+    "password must be longer than or equal to 8 characters"
+  ],
   "error": "Bad Request"
 }
 ```
 
 **Response Error (409 Conflict) :**
+
 ```json
 {
   "statusCode": 409,
@@ -79,9 +89,11 @@ Inscription d'un nouvel utilisateur.
 ---
 
 #### POST /api/auth/login
+
 Connexion d'un utilisateur existant.
 
 **Request Body :**
+
 ```json
 {
   "email": "user@example.com",
@@ -90,10 +102,12 @@ Connexion d'un utilisateur existant.
 ```
 
 **Validation :**
+
 - `email` : string, email valide, requis
 - `password` : string, requis
 
 **Response Success (201 Created) :**
+
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -105,6 +119,7 @@ Connexion d'un utilisateur existant.
 ```
 
 **Response Error (401 Unauthorized) :**
+
 ```json
 {
   "statusCode": 401,
@@ -116,9 +131,11 @@ Connexion d'un utilisateur existant.
 ---
 
 #### POST /api/auth/forgot-password
+
 Demande de réinitialisation de mot de passe (stub : message uniquement, pas d’email envoyé pour l’instant).
 
 **Request Body :**
+
 ```json
 {
   "email": "user@example.com"
@@ -126,9 +143,11 @@ Demande de réinitialisation de mot de passe (stub : message uniquement, pas d�
 ```
 
 **Validation :**
+
 - `email` : string, email valide, requis
 
 **Response Success (201 Created) — email existant :**
+
 ```json
 {
   "message": "Si un compte existe pour cet email, un lien de réinitialisation vous a été envoyé."
@@ -136,6 +155,7 @@ Demande de réinitialisation de mot de passe (stub : message uniquement, pas d�
 ```
 
 **Response Error (404 Not Found) — email inexistant :**
+
 ```json
 {
   "statusCode": 404,
@@ -145,6 +165,7 @@ Demande de réinitialisation de mot de passe (stub : message uniquement, pas d�
 ```
 
 **Response Error (400 Bad Request) :**
+
 ```json
 {
   "statusCode": 400,
@@ -158,14 +179,17 @@ Demande de réinitialisation de mot de passe (stub : message uniquement, pas d�
 ### 👤 Users (Authentifié)
 
 #### GET /api/users/me
+
 Récupère le profil de l'utilisateur connecté.
 
 **Headers :**
+
 ```
 Authorization: Bearer <token>
 ```
 
 **Response Success (200 OK) :**
+
 ```json
 {
   "id": "uuid",
@@ -182,6 +206,7 @@ Authorization: Bearer <token>
 ```
 
 **Response Error (401 Unauthorized) :**
+
 ```json
 {
   "statusCode": 401,
@@ -193,14 +218,17 @@ Authorization: Bearer <token>
 ---
 
 #### PATCH /api/users/me
+
 Met à jour le profil de l'utilisateur connecté.
 
 **Headers :**
+
 ```
 Authorization: Bearer <token>
 ```
 
 **Request Body :**
+
 ```json
 {
   "pseudo": "NewPseudo",
@@ -211,6 +239,7 @@ Authorization: Bearer <token>
 ```
 
 **Validation :**
+
 - `pseudo` : string, optionnel, max 50 caractères
 - `firstName` : string, optionnel, max 100 caractères
 - `lastName` : string, optionnel, max 100 caractères
@@ -221,6 +250,7 @@ Authorization: Bearer <token>
 **Response Success (200 OK) :** même forme que GET /api/users/me (profil complet avec champs en camelCase).
 
 **Response Error (400 Bad Request) :**
+
 ```json
 {
   "statusCode": 400,
@@ -232,14 +262,17 @@ Authorization: Bearer <token>
 ---
 
 #### PATCH /api/users/me/password
+
 Change le mot de passe de l'utilisateur connecté.
 
 **Headers :**
+
 ```
 Authorization: Bearer <token>
 ```
 
 **Request Body :**
+
 ```json
 {
   "currentPassword": "OldPassword123!",
@@ -248,12 +281,14 @@ Authorization: Bearer <token>
 ```
 
 **Validation :**
+
 - `currentPassword` : string, requis
 - `newPassword` : string, minimum 8 caractères, requis
 
 **Response Success (200 OK) :** corps vide.
 
 **Response Error (400 Bad Request) :**
+
 ```json
 {
   "statusCode": 400,
@@ -267,24 +302,29 @@ Authorization: Bearer <token>
 ### 🏃 Runs (Authentifié)
 
 #### GET /api/runs
+
 Récupère la liste des courses de l'utilisateur connecté, triées par date.
 
 **Headers :**
+
 ```
 Authorization: Bearer <token>
 ```
 
 **Query Parameters :**
+
 - `limit` : number, optionnel, défaut 20, maximum 100
 - `offset` : number, optionnel, défaut 0
 - `order` : string, optionnel, "asc" ou "desc", défaut "desc"
 
 **Example Request :**
+
 ```
 GET /api/runs?limit=10&offset=0&order=desc
 ```
 
 **Response Success (200 OK) :**
+
 ```json
 {
   "items": [
@@ -302,6 +342,7 @@ GET /api/runs?limit=10&offset=0&order=desc
 ```
 
 **Response Error (401 Unauthorized) :**
+
 ```json
 {
   "statusCode": 401,
@@ -313,14 +354,17 @@ GET /api/runs?limit=10&offset=0&order=desc
 ---
 
 #### POST /api/runs
+
 Crée une nouvelle course pour l'utilisateur connecté.
 
 **Headers :**
+
 ```
 Authorization: Bearer <token>
 ```
 
 **Request Body :**
+
 ```json
 {
   "date": "2026-01-15T20:30:00.000Z",
@@ -333,11 +377,13 @@ Authorization: Bearer <token>
 ```
 
 **Validation :**
+
 - `date` : date ISO 8601 (transformée en Date), requise
 - `durationSeconds` : number, entier ≥ 0, requis
 - `patternJson` : object JSON, requis (structure libre pour le pattern de fractionné)
 
 **Response Success (201 Created) :**
+
 ```json
 {
   "id": "uuid",
@@ -350,15 +396,20 @@ Authorization: Bearer <token>
 ```
 
 **Response Error (400 Bad Request) :**
+
 ```json
 {
   "statusCode": 400,
-  "message": ["date must be a valid ISO 8601 date", "duration_seconds must be a positive number"],
+  "message": [
+    "date must be a valid ISO 8601 date",
+    "duration_seconds must be a positive number"
+  ],
   "error": "Bad Request"
 }
 ```
 
 **Response Error (401 Unauthorized) :**
+
 ```json
 {
   "statusCode": 401,

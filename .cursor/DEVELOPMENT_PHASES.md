@@ -1,6 +1,6 @@
 # Phases de Développement - Monkey-run
 
-**Dernière mise à jour :** 2026-02-22
+**Dernière mise à jour :** 2026-03-29
 
 Ce document décrit les 4 phases de développement recommandées pour l'application Monkey-run, dans l'ordre d'implémentation.
 
@@ -8,12 +8,12 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
 
 ## Vue d'ensemble
 
-| Phase | Objectif | Durée estimée | Statut |
-|-------|----------|---------------|--------|
-| **Phase 1** | Backend - Setup et modules de base | 2-3 semaines | ✅ Terminée |
-| **Phase 2** | Mobile - Authentification | 1-2 semaines | ⚪ À faire |
-| **Phase 3** | Mobile - Chrono fonctionnel | 1-2 semaines | ⚪ À faire |
-| **Phase 4** | Mobile - Dashboard | 1 semaine | ⚪ À faire |
+| Phase       | Objectif                                      | Durée estimée | Statut                                                                         |
+| ----------- | --------------------------------------------- | ------------- | ------------------------------------------------------------------------------ |
+| **Phase 1** | Backend - Setup et modules de base            | 2-3 semaines  | ✅ Terminée                                                                    |
+| **Phase 2** | Mobile - Auth + navigation + shell UI         | 1-2 semaines  | 🟡 En cours (UI / navigation faits ; branchement API & garde auth à finaliser) |
+| **Phase 3** | Mobile - Chrono fonctionnel                   | 1-2 semaines  | ⚪ À faire                                                                     |
+| **Phase 4** | Mobile - Dashboard / historique connectés API | 1 semaine     | 🟡 Partiel (écrans UI existent ; données réelles à brancher)                   |
 
 ---
 
@@ -33,6 +33,7 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
 **Rappel — PostgreSQL :** Si besoin de recréer la base : `npm run db:create`. Port 5432 ou 5433 selon l’installation.
 
 **Fichiers concernés :**
+
 - `src/prisma/prisma.module.ts`
 - `src/prisma/prisma.service.ts`
 - `prisma/schema.prisma`
@@ -45,6 +46,7 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
 **Objectif :** Créer les modèles de données selon les spécifications.
 
 **Tâches :**
+
 1. [x] Créer le modèle `User` dans `prisma/schema.prisma`
 2. [x] Créer le modèle `Profile` (relation 1:1 avec User)
 3. [x] Créer le modèle `Run` (relation 1:N avec User)
@@ -53,10 +55,12 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
 6. [x] Vérifier avec Prisma Studio (optionnel) : `npm run prisma:studio`
 
 **Fichiers à créer/modifier :**
+
 - `prisma/schema.prisma` (modifier)
 - `prisma/migrations/` (créé automatiquement)
 
 **Critères de validation :**
+
 - [x] Les 3 modèles sont définis correctement
 - [x] La migration s'applique sans erreur
 - [x] Les tables sont créées dans PostgreSQL
@@ -73,15 +77,17 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
 **Objectif :** Implémenter l'authentification complète avec JWT.
 
 **Tâches :**
+
 1. [x] Module Auth (auth.module.ts, JwtModule, PassportModule, JWT strategy)
 2. [x] DTOs signup, login, forgot-password (class-validator)
 3. [x] AuthService : signup (user + profile), login (JWT), forgotPassword (stub)
 4. [x] AuthController : POST /api/auth/signup, login, forgot-password
 5. [x] JWT strategy (jwt.strategy.ts) et guard (jwt-auth.guard.ts)
 6. [x] CORS et ValidationPipe dans main.ts ; préfixe global `/api`
-7. [x] Tests unitaires AuthService et E2E /api/auth/*
+7. [x] Tests unitaires AuthService et E2E /api/auth/\*
 
 **Critères de validation :**
+
 - [x] Inscription fonctionne (création user + profile)
 - [x] Connexion fonctionne (retourne JWT)
 - [x] Mot de passe oublié fonctionne (stub)
@@ -96,14 +102,16 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
 **Objectif :** Gérer le profil utilisateur (GET/PATCH /users/me).
 
 **Tâches :**
+
 1. [x] UsersModule (import AuthModule pour JwtAuthGuard)
 2. [x] DTOs update-profile (pseudo, firstName, lastName, avatarUrl), change-password (currentPassword, newPassword)
 3. [x] UsersService : getProfile(), updateProfile(), changePassword()
 4. [x] UsersController : GET /api/users/me, PATCH /api/users/me, PATCH /api/users/me/password (JwtAuthGuard)
 5. [x] Decorator CurrentUser
-6. [x] Tests unitaires et E2E /api/users/*
+6. [x] Tests unitaires et E2E /api/users/\*
 
 **Critères de validation :**
+
 - [x] GET /api/users/me retourne le profil complet
 - [x] PATCH /api/users/me met à jour le profil
 - [x] PATCH /api/users/me/password change le mot de passe
@@ -117,13 +125,15 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
 **Objectif :** Gérer les courses (GET/POST /runs).
 
 **Tâches :**
+
 1. [x] RunsModule (import AuthModule)
 2. [x] DTOs create-run (date, durationSeconds, patternJson), query-runs (limit, offset, order)
 3. [x] RunsService : create(), findAll() avec pagination
 4. [x] RunsController : GET /api/runs, POST /api/runs (JwtAuthGuard)
-5. [x] Tests unitaires et E2E /api/runs/*
+5. [x] Tests unitaires et E2E /api/runs/\*
 
 **Critères de validation :**
+
 - [x] GET /api/runs retourne les courses de l'utilisateur (triées par date)
 - [x] POST /api/runs crée une nouvelle course
 - [x] Pagination (limit, offset) et order (asc/desc)
@@ -152,28 +162,35 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
 
 **Durée estimée :** 1-2 semaines
 
-### ❌ Étape 2.1 : Setup React Native + Tamagui
+### ✅ Étape 2.1 : Setup React Native + Tamagui (FAIT)
 
-**Tâches :**
-1. Vérifier que React Native est configuré
-2. Configurer Tamagui (déjà fait dans `tamagui.config.ts`)
-3. Configurer React Navigation
-4. Créer la structure de navigation de base
+**Réalisé :**
 
-**Fichiers à créer/modifier :**
-- `mobile/src/navigation/AppNavigator.tsx`
+1. React Native 0.82 + Tamagui (`tamagui.config.ts`, `TamaguiProvider` dans `App.tsx`)
+2. React Navigation : stack racine + onglets (`RootNavigator.tsx`, `types.ts`)
+3. Thème : `mobile/src/theme/colors.ts`, `typography.ts`
+4. Icônes : imports directs par fichier sous `lucide-react-native/dist/.../icons/*.js` (évite le barrel du package)
+5. Client HTTP : `api.ts` (intercepteur JWT) ; stockage : `storage.ts` (cache mémoire du JWT après première lecture)
+
+**Fichiers principaux :**
+
+- `mobile/App.tsx`
+- `mobile/src/navigation/RootNavigator.tsx`
 - `mobile/src/navigation/types.ts`
+- `mobile/metro.config.js`
 
 **Durée estimée :** 2-3 heures
 
 ---
 
-### ❌ Étape 2.2 : Écrans d'authentification
+### 🟡 Étape 2.2 : Écrans d'authentification (EN COURS)
+
+**État :** Écrans présents à la racine de `screens/` (pas le sous-dossier `auth/` prévu initialement) : `LoginScreen.tsx`, `SignupScreen.tsx`. Formulaires complets + appels API à finaliser selon besoins produit.
 
 **Tâches :**
 
 1. **Écran Signup**
-   - `mobile/src/screens/auth/SignupScreen.tsx`
+   - `mobile/src/screens/SignupScreen.tsx` (existe)
    - Formulaire avec react-hook-form + zod
    - Champs : email, password, confirm password
    - Appel API : POST /auth/signup
@@ -198,18 +215,23 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
    - `mobile/src/components/auth/FormInput.tsx` (input avec validation)
    - `mobile/src/components/auth/FormButton.tsx` (bouton de formulaire)
 
-**Fichiers à créer :**
-- `mobile/src/screens/auth/SignupScreen.tsx`
-- `mobile/src/screens/auth/LoginScreen.tsx`
-- `mobile/src/screens/auth/ForgotPasswordScreen.tsx`
-- `mobile/src/components/auth/FormInput.tsx`
-- `mobile/src/components/auth/FormButton.tsx`
+**Fichiers existants :**
+
+- `mobile/src/screens/SignupScreen.tsx`
+- `mobile/src/screens/LoginScreen.tsx`
+
+**Fichiers encore à ajouter si besoin :**
+
+- `mobile/src/screens/ForgotPasswordScreen.tsx` (ou équivalent)
+- Composants formulaire dédiés (`FormInput`, `FormButton`) si refactor
 
 **Fichiers à modifier :**
-- `mobile/src/navigation/AppNavigator.tsx` (ajouter les routes auth)
-- `mobile/src/services/api.ts` (vérifier que l'intercepteur JWT fonctionne)
+
+- `mobile/src/navigation/RootNavigator.tsx` (routes auth déjà présentes ; à compléter)
+- `mobile/src/services/api.ts` (intercepteur JWT opérationnel)
 
 **Critères de validation :**
+
 - [ ] Inscription fonctionne et stocke le token
 - [ ] Connexion fonctionne et stocke le token
 - [ ] Mot de passe oublié fonctionne
@@ -220,7 +242,7 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
 
 ---
 
-### ❌ Étape 2.3 : Vérification de l'authentification
+### ❌ Étape 2.3 : Vérification de l'authentification (À FAIRE)
 
 **Tâches :**
 
@@ -238,13 +260,16 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
    - Afficher un loader pendant la vérification du token
 
 **Fichiers à créer :**
+
 - `mobile/src/hooks/useAuth.ts`
 - `mobile/src/components/auth/ProtectedRoute.tsx`
 
 **Fichiers à modifier :**
+
 - `mobile/src/navigation/AppNavigator.tsx` (ajouter la protection des routes)
 
 **Critères de validation :**
+
 - [ ] Le token est vérifié au démarrage de l'app
 - [ ] Redirection automatique vers Login si token invalide
 - [ ] Redirection automatique vers Dashboard si token valide
@@ -255,14 +280,14 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
 
 ### ✅ Checklist Phase 2
 
-- [ ] React Navigation configuré
-- [ ] Écran Signup implémenté
-- [ ] Écran Login implémenté
-- [ ] Écran Forgot Password implémenté
+- [x] React Navigation configuré (stack + tabs)
+- [x] Écran Signup (UI) présent
+- [x] Écran Login (UI) présent
+- [ ] Écran Forgot Password
 - [ ] Hook useAuth créé
 - [ ] Protection des routes configurée
-- [ ] Token JWT stocké dans encrypted-storage
-- [ ] Appel GET /users/me pour vérifier l'auth
+- [x] Infrastructure token JWT (intercepteur + encrypted-storage + cache mémoire)
+- [ ] Appel GET /users/me pour vérifier l'auth au démarrage
 
 ---
 
@@ -288,6 +313,7 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
    - Calcul du temps écoulé
 
 **Fichiers à créer :**
+
 - `mobile/src/screens/timer/TimerScreen.tsx`
 - `mobile/src/hooks/useTimer.ts`
 
@@ -315,14 +341,17 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
    - Paramètres : activer/désactiver voix et/ou vibration
 
 **Fichiers à créer :**
+
 - `mobile/src/services/notifications.ts`
 - `mobile/src/components/timer/NotificationSettings.tsx`
 
 **Fichiers à modifier :**
+
 - `mobile/src/screens/timer/TimerScreen.tsx` (intégrer les notifications)
 - `mobile/src/hooks/useTimer.ts` (gérer les phases rapide/lente)
 
 **Critères de validation :**
+
 - [ ] Les notifications voix fonctionnent
 - [ ] Les vibrations fonctionnent
 - [ ] Les paramètres permettent d'activer/désactiver chaque type
@@ -351,13 +380,16 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
    - Synchroniser quand la connexion revient
 
 **Fichiers à créer :**
+
 - `mobile/src/screens/timer/ConfirmRunScreen.tsx`
 
 **Fichiers à modifier :**
+
 - `mobile/src/screens/timer/TimerScreen.tsx` (navigation vers confirmation)
 - `mobile/src/services/api.ts` (gérer les erreurs réseau)
 
 **Critères de validation :**
+
 - [ ] La course est enregistrée au backend
 - [ ] Gestion des erreurs réseau
 - [ ] Navigation vers Dashboard après enregistrement
@@ -371,6 +403,7 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
 **Tâches :**
 
 1. **Installer react-native-background-timer**
+
    ```bash
    npm install react-native-background-timer
    ```
@@ -384,10 +417,12 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
    - Vérifier que les notifications fonctionnent en arrière-plan
 
 **Fichiers à modifier :**
+
 - `mobile/src/hooks/useTimer.ts`
 - `mobile/android/app/src/main/AndroidManifest.xml` (permissions si nécessaire)
 
 **Critères de validation :**
+
 - [ ] Le chrono continue en arrière-plan
 - [ ] Les notifications fonctionnent en arrière-plan
 
@@ -397,7 +432,8 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
 
 ### ✅ Checklist Phase 3
 
-- [ ] Écran Timer implémenté
+- [x] Écran chrono (UI) — `ChronoScreen.tsx` (logique timer / POST /runs à faire)
+- [ ] Écran Timer complet (start/pause, enregistrement)
 - [ ] Notifications voix configurées
 - [ ] Vibrations configurées
 - [ ] Paramètres de notifications (activer/désactiver)
@@ -413,12 +449,14 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
 
 **Durée estimée :** 1 semaine
 
+**Note (2026-03-29) :** Shell UI déjà présent — `DashboardScreen.tsx`, `HistoryScreen.tsx`, `SessionDetailScreen.tsx`, composant `SessionCard.tsx`. Reste à brancher `GET /users/me`, `GET /runs`, pagination et états de chargement / erreur.
+
 ### ❌ Étape 4.1 : Écran Dashboard
 
 **Tâches :**
 
 1. **Écran Dashboard**
-   - `mobile/src/screens/dashboard/DashboardScreen.tsx`
+   - `mobile/src/screens/DashboardScreen.tsx` (existe — à connecter à l’API)
    - Affichage des infos perso (nom, prénom ou pseudo)
    - Bouton "Démarrer une course" (navigation vers Timer)
    - Section "Historique des courses"
@@ -431,12 +469,14 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
    - `mobile/src/components/dashboard/CourseCard.tsx`
    - Afficher : date, durée, pattern utilisé
 
-**Fichiers à créer :**
-- `mobile/src/screens/dashboard/DashboardScreen.tsx`
-- `mobile/src/components/dashboard/CourseCard.tsx`
-- `mobile/src/hooks/useRuns.ts` (hook pour récupérer les courses)
+**Fichiers existants / à créer :**
+
+- `mobile/src/screens/DashboardScreen.tsx` (existe)
+- `mobile/src/components/SessionCard.tsx` (existe — équivalent CourseCard)
+- `mobile/src/hooks/useRuns.ts` (hook pour récupérer les courses — à créer)
 
 **Critères de validation :**
+
 - [ ] Les infos perso s'affichent
 - [ ] L'historique des courses s'affiche (trié par date)
 - [ ] La pagination fonctionne
@@ -460,6 +500,7 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
    - Composant `StatsCard` pour afficher les stats
 
 **Fichiers à créer :**
+
 - `mobile/src/components/dashboard/StatsCard.tsx`
 
 **Durée estimée :** 2-3 heures
@@ -479,13 +520,13 @@ Ce document décrit les 4 phases de développement recommandées pour l'applicat
 
 ## Résumé des Phases
 
-| Phase | Modules Backend | Écrans Mobile | Durée |
-|-------|----------------|---------------|-------|
-| **Phase 1** | AuthModule, UsersModule, RunsModule | - | 2-3 semaines |
-| **Phase 2** | - | Auth (Signup, Login, ForgotPassword) | 1-2 semaines |
-| **Phase 3** | - | Timer (Chrono, Notifications) | 1-2 semaines |
-| **Phase 4** | - | Dashboard (Historique, Stats) | 1 semaine |
-| **TOTAL** | 3 modules | 6+ écrans | 5-8 semaines |
+| Phase       | Modules Backend                     | Écrans Mobile                        | Durée        |
+| ----------- | ----------------------------------- | ------------------------------------ | ------------ |
+| **Phase 1** | AuthModule, UsersModule, RunsModule | -                                    | 2-3 semaines |
+| **Phase 2** | -                                   | Auth (Signup, Login, ForgotPassword) | 1-2 semaines |
+| **Phase 3** | -                                   | Timer (Chrono, Notifications)        | 1-2 semaines |
+| **Phase 4** | -                                   | Dashboard (Historique, Stats)        | 1 semaine    |
+| **TOTAL**   | 3 modules                           | 6+ écrans                            | 5-8 semaines |
 
 ---
 

@@ -1,13 +1,13 @@
 # Contexte et Historique du Projet
 
-**Dernière mise à jour :** 2026-02-22
+**Dernière mise à jour :** 2026-03-29
 **Version du projet :** 0.0.1
 **Agent Cursor :** Composer
 **Développeur actuel :** [À REMPLIR]
 
 ## État actuel du projet
 
-Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend est terminée.** Le backend NestJS est opérationnel avec : PrismaModule, schéma Prisma (User, Profile, Run), AuthModule (signup, login, forgot-password, JWT), UsersModule (profil, changement de mot de passe), RunsModule (CRUD courses avec pagination). API préfixée par `/api`, CORS et ValidationPipe configurés. Tests unitaires et E2E en place. Prochaine étape : **Phase 2 - Mobile (Authentification)**. Stack : React Native + Tamagui (mobile) / NestJS + PostgreSQL + Prisma (backend).
+Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend terminée.** **Phase 2 - Mobile en cours :** navigation React Navigation (stack + onglets), Tamagui, écrans d’onboarding, login/signup, dashboard, chrono, historique, profil et session détail (principalement UI). Services `api.ts` (axios + JWT) et `storage.ts` (EncryptedStorage + cache mémoire du JWT). Icônes Lucide via chemins directs par fichier (`dist/.../icons/*.js`) pour limiter le bundle. Prochaines étapes : hook `useAuth`, garde de routes, formulaires auth branchés à l’API, chrono fonctionnel et `POST /runs`, listes branchées à `GET /runs`. Stack : React Native 0.82 + Tamagui / NestJS + PostgreSQL + Prisma.
 
 ---
 
@@ -16,16 +16,19 @@ Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend e
 ### Stack Technique
 
 **Frontend Mobile :**
+
 - React Native 0.82.1 (priorité Android)
 - Tamagui 1.135.7 (design system)
-- @react-navigation/native 7.1.19 / @react-navigation/native-stack 7.6.2 (navigation)
+- @react-navigation/native / native-stack / bottom-tabs (navigation stack + onglets)
 - react-hook-form 7.66.0 + zod 4.1.12 (formulaires et validation)
+- lucide-react-native + react-native-svg (icônes ; imports directs par fichier `dist/.../icons/*.js`)
 - axios 1.13.1 (client HTTP pour API)
 - react-native-encrypted-storage 4.0.3 (stockage sécurisé des tokens)
 - react-native-background-timer (chrono en arrière-plan, à installer si nécessaire)
 - TypeScript 5.8.3
 
 **Backend :**
+
 - NestJS 11.0.1 (framework backend)
 - @nestjs/passport 11.0.5 + passport-jwt 4.0.1 (authentification JWT)
 - bcrypt 6.0.0 (hashage des mots de passe)
@@ -36,13 +39,15 @@ Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend e
 - Node.js >= 18.x (20.x recommandé)
 
 **Infrastructure :**
+
 - Aucun CI/CD configuré actuellement
 - Pas de Docker détecté
 - S3 pour avatars (à implémenter plus tard)
 
 **Autres :**
+
 - npm (gestionnaire de paquets)
-- Metro Bundler 0.82.1 (bundler React Native)
+- Metro Bundler ~0.83 (bundler React Native)
 - Gradle (build Android)
 - Xcode/CocoaPods (build iOS)
 - Jest 30.0.0 (tests backend) / Jest 29.6.3 (tests mobile)
@@ -50,6 +55,7 @@ Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend e
 - Prettier 3.4.2 (backend) / 2.8.8 (mobile)
 
 ### Architecture du projet
+
 - **Type :** Application mobile-first avec backend API REST
 - **Flow de données :** Mobile (React Native) → Backend (NestJS) → Database (PostgreSQL) → Web Dashboard (futur)
 - **Authentification :** JWT avec refresh token (stateless, scalable)
@@ -57,19 +63,21 @@ Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend e
 - **Architecture mobile :** Services (API, Storage) → Composants → Navigation
 
 ### Décisions architecturales clés
-| Date | Décision | Raison | Impact |
-|------|----------|--------|--------|
-| Initial | React Native pour le mobile (priorité Android) | Cross-platform, code partagé, performance native | Développement unique pour Android et iOS, nécessite configuration native |
-| Initial | Tamagui pour l'UI | Design system performant et moderne, optimisation automatique | UI cohérente, meilleures performances que les composants React Native natifs |
-| Initial | Architecture modulaire NestJS | Séparation claire des responsabilités, facilité de maintenance, TypeScript natif | Structure organisée en modules (AuthModule, UsersModule, RunsModule), controllers, services |
-| Initial | Prisma comme ORM | Type-safety, migrations automatiques, génération de client, recommandé dans les specs | Accès type-safe à la base de données, migrations faciles. Schéma défini (User, Profile, Run) depuis 2026-01-28 |
-| Initial | JWT pour l'authentification | Standard de l'industrie, stateless, scalable, requis par les specs | Infrastructure prête mais non implémentée, nécessite Passport |
-| Initial | PostgreSQL pour la persistence | Base de données relationnelle robuste, requise par les specs | Persistance fiable, nécessite configuration et migrations |
-| Initial | Stockage sécurisé avec react-native-encrypted-storage | Sécurité des tokens JWT et données sensibles, requis par les specs | Utilisation du KeyStore Android/Keychain iOS natif, sécurité renforcée |
-| Initial | react-hook-form + zod | Gestion des formulaires et validation, requis par les specs | Validation côté client robuste, meilleure UX |
-| Initial | BackgroundTimer si nécessaire | Chrono fonctionnel en arrière-plan pour les courses | Permet de continuer le chrono même si l'app est en arrière-plan |
+
+| Date    | Décision                                              | Raison                                                                                | Impact                                                                                                         |
+| ------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Initial | React Native pour le mobile (priorité Android)        | Cross-platform, code partagé, performance native                                      | Développement unique pour Android et iOS, nécessite configuration native                                       |
+| Initial | Tamagui pour l'UI                                     | Design system performant et moderne, optimisation automatique                         | UI cohérente, meilleures performances que les composants React Native natifs                                   |
+| Initial | Architecture modulaire NestJS                         | Séparation claire des responsabilités, facilité de maintenance, TypeScript natif      | Structure organisée en modules (AuthModule, UsersModule, RunsModule), controllers, services                    |
+| Initial | Prisma comme ORM                                      | Type-safety, migrations automatiques, génération de client, recommandé dans les specs | Accès type-safe à la base de données, migrations faciles. Schéma défini (User, Profile, Run) depuis 2026-01-28 |
+| Initial | JWT pour l'authentification                           | Standard de l'industrie, stateless, scalable, requis par les specs                    | Backend JWT + Passport ; client mobile avec intercepteur axios                                                 |
+| Initial | PostgreSQL pour la persistence                        | Base de données relationnelle robuste, requise par les specs                          | Persistance fiable, nécessite configuration et migrations                                                      |
+| Initial | Stockage sécurisé avec react-native-encrypted-storage | Sécurité des tokens JWT et données sensibles, requis par les specs                    | Utilisation du KeyStore Android/Keychain iOS natif, sécurité renforcée                                         |
+| Initial | react-hook-form + zod                                 | Gestion des formulaires et validation, requis par les specs                           | Validation côté client robuste, meilleure UX                                                                   |
+| Initial | BackgroundTimer si nécessaire                         | Chrono fonctionnel en arrière-plan pour les courses                                   | Permet de continuer le chrono même si l'app est en arrière-plan                                                |
 
 ### Patterns utilisés
+
 - **Singleton Pattern** : `PrismaService` (service global dans `src/prisma/prisma.service.ts`), `SecureStorageService` (instance unique dans `mobile/src/services/storage.ts`)
 - **Repository Pattern** : Implémenté via Prisma Client (accès à la base de données)
 - **Dependency Injection** : Utilisé par NestJS pour l'injection de dépendances dans tous les modules
@@ -80,6 +88,7 @@ Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend e
 ### Modules de l'application
 
 #### Backend (NestJS)
+
 - **PrismaModule** : Service global pour l'accès à la base de données (✅)
 - **AuthModule** : Authentification (signup, login, forgot-password, JWT) (✅)
 - **UsersModule** : Profil utilisateur (GET/PATCH /users/me, PATCH /users/me/password) (✅)
@@ -87,23 +96,26 @@ Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend e
 - **ConfigModule** : Variables d'environnement (✅, global)
 
 #### Mobile (React Native)
-- **Auth** : Écrans d'inscription, connexion, mot de passe oublié (❌ À créer)
-- **Profile** : Consultation et modification du profil (❌ À créer)
-- **Timer** : Chronomètre de course avec notifications voix/vibration (❌ À créer)
-- **Dashboard** : Historique des courses et statistiques (❌ À créer)
+
+- **Onboarding / Auth** : `OnboardingStep1–3Screen`, `LoginScreen`, `SignupScreen` (🟡 UI présente ; branchement API / validation à finaliser)
+- **Navigation** : `RootNavigator` (tabs : Accueil / Historique / Profil ; stacks imbriqués)
+- **Chrono** : `ChronoScreen` (🟡 UI ; logique timer et enregistrement à faire)
+- **Dashboard / Historique** : `DashboardScreen`, `HistoryScreen`, `SessionDetailScreen`, `SessionCard` (🟡 UI ; données API à brancher)
+- **Profil** : `ProfileScreen`, `EditProfileScreen` (🟡 UI)
 
 ### Conventions de code
-- **Nommage :** 
+
+- **Nommage :**
   - Backend : fichiers en `kebab-case` (ex: `app.controller.ts`), classes en `PascalCase` (ex: `AppController`), méthodes/variables en `camelCase` (ex: `appService`)
   - Mobile : composants en `PascalCase` (ex: `App.tsx`), hooks/fonctions en `camelCase`, services en `camelCase` (ex: `api.ts`)
   - Base de données : tables et colonnes en `snake_case` (ex: `user_id`, `created_at`)
-- **Structure des fichiers :** 
+- **Structure des fichiers :**
   - Backend : Organisation modulaire NestJS (`src/module/module.controller.ts`, `module.service.ts`, `module.module.ts`, `module.dto.ts`)
   - Mobile : Services dans `src/services/`, composants dans `src/components/`, écrans dans `src/screens/`
-- **Style :** 
+- **Style :**
   - Backend : ESLint 9.18.0 avec typescript-eslint, Prettier 3.4.2, règles personnalisées (certaines règles strictes désactivées)
   - Mobile : ESLint 8.19.0 avec configuration React Native, Prettier 2.8.8
-- **Tests :** 
+- **Tests :**
   - Backend : Tests unitaires `*.spec.ts` dans le même dossier que le fichier testé, tests E2E dans `test/*.e2e-spec.ts`
   - Mobile : Tests dans `__tests__/` avec extension `.test.tsx`
 
@@ -111,11 +123,21 @@ Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend e
 
 ## Journal des modifications
 
+### 2026-03-29 - Documentation et état mobile (UI + perf)
+
+**Résumé :** Mise à jour de `README.md` (démarrage rapide : backend, Metro, Android/iOS), `DEVELOPMENT_PHASES.md` et `PROJECT_CONTEXT.md` pour refléter les écrans Tamagui, la navigation, les services API/storage, les imports Lucide optimisés, et le cache JWT en mémoire. Côté backend, `UsersService.updateProfile` optimisé (moins d’allers-retours Prisma).
+
+**Fichiers modifiés (non exhaustif) :** `README.md`, `.cursor/DEVELOPMENT_PHASES.md`, `.cursor/PROJECT_CONTEXT.md`, `ANALYSE_PROJET.md`, `mobile/README.md`, `mobile/jest.config.js`, `src/users/users.service.ts`
+
+---
+
 ### 2026-01-15 - Session 1 - Initialisation du contexte
+
 **Développeur/Agent :** Cursor Agent (Composer)
 **Objectif :** Création du système de traçabilité et documentation du contexte initial
 
 #### État initial documenté
+
 - Analyse complète du projet effectuée
 - Structure et architecture identifiées
 - Conventions de code documentées
@@ -125,6 +147,7 @@ Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend e
 - Infrastructure de tests en place mais couverture limitée
 
 #### Fichiers créés
+
 1. `.cursor/PROJECT_CONTEXT.md` - Ce fichier de contexte principal
 2. `.cursor/MODIFICATION_TEMPLATE.md` - Template pour futures sessions
 3. `.cursor/rules` - Règles simplifiées pour l'agent
@@ -133,10 +156,12 @@ Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend e
 ---
 
 ### 2026-01-15 - Session 2 - Intégration des spécifications du projet
+
 **Développeur/Agent :** Cursor Agent (Composer)
 **Objectif :** Mise à jour du contexte avec les spécifications détaillées du projet
 
 #### Modifications effectuées
+
 1. **Docs** - Mise à jour complète de PROJECT_CONTEXT.md avec les spécifications
    - **Fichiers modifiés :**
      - `.cursor/PROJECT_CONTEXT.md` - Intégration des spécifications (concept, stack technique, modules, schéma BDD, phases de développement)
@@ -170,17 +195,20 @@ Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend e
    - **Dépendances modifiées :** Aucune
 
 #### Points d'attention
+
 - [x] ~~Le schéma Prisma doit être implémenté dans `prisma/schema.prisma` avant utilisation~~ (fait 2026-01-28)
 - [ ] Les modules AuthModule, UsersModule, RunsModule sont à créer selon les spécifications
 - [ ] Les écrans mobile (Auth, Timer, Dashboard) sont à développer selon les phases
 - [ ] BackgroundTimer doit être installé et configuré pour le chrono en arrière-plan
 
 #### Dépendances ajoutées/supprimées
+
 - **Ajoutées :** Aucune (dépendances déjà présentes)
 - **Supprimées :** Aucune
 - **Mises à jour :** Aucune
 
 #### Documentation mise à jour
+
 - [x] PROJECT_CONTEXT.md - Intégration complète des spécifications
 - [x] API_DOCUMENTATION.md - Créé avec tous les endpoints détaillés
 - [x] DATABASE_SCHEMA.md - Créé avec le schéma Prisma complet
@@ -189,10 +217,12 @@ Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend e
 ---
 
 ### 2026-01-28 - Session 3 - Schéma Prisma et migration initiale (Étape 1.2)
+
 **Développeur/Agent :** Cursor Agent
 **Objectif :** Définir le schéma Prisma selon `.cursor/rules` et `.cursor/DATABASE_SCHEMA.md`, cocher les tâches 1 à 6 de l'étape 1.2
 
 #### Modifications effectuées
+
 1. **Backend - Schéma Prisma**
    - **Fichiers modifiés :** `prisma/schema.prisma`
    - Modèles `User`, `Profile`, `Run` ajoutés (relation 1:1 User–Profile, 1:N User–Run). Index sur `run.user_id` et `run.date`. Générateur `prisma-client-js` pour compatibilité avec `@prisma/client`.
@@ -211,16 +241,19 @@ Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend e
    - **Fichiers modifiés :** `.cursor/DEVELOPMENT_PHASES.md` (étape 1.2 ✅, tâches 1–6 cochées), `.cursor/PROJECT_CONTEXT.md` (journal, roadmap, dette technique).
 
 #### Dépendances ajoutées/supprimées
+
 - **Ajoutées :** Aucune (dotenv déjà présent via @nestjs/config)
 - **Supprimées :** Aucune
 
 ---
 
 ### 2026-01-28 - Session 4 - Alignement de la documentation avec l’état Prisma
+
 **Développeur/Agent :** Cursor Agent
 **Objectif :** Mettre à jour tous les fichiers selon PROJECT_CONTEXT pour refléter que le schéma Prisma est défini (User, Profile, Run) et la migration initiale créée.
 
 #### Modifications effectuées
+
 1. **Docs - PROJECT_CONTEXT.md**
    - **Décisions architecturales :** Prisma — "schéma vide actuellement" → "Schéma défini (User, Profile, Run) depuis 2026-01-28".
    - **Erreurs courantes :** "Schéma Prisma vide" → "Migration Prisma non appliquée" (préciser config `.env` et `npm run prisma:migrate`).
@@ -230,6 +263,7 @@ Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend e
 3. **Docs - ANALYSE_PROJET.md** : Références au schéma vide mises à jour pour refléter l’état actuel.
 
 #### Dépendances ajoutées/supprimées
+
 - **Ajoutées :** Aucune
 - **Supprimées :** Aucune
 
@@ -238,52 +272,58 @@ Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend e
 ## Dépendances critiques
 
 ### Services externes
-| Service | Usage | Configuration | Documentation |
-|---------|-------|---------------|---------------|
-| PostgreSQL | Base de données relationnelle | Variable `DATABASE_URL` dans `.env` | https://www.postgresql.org/docs/ |
-| JWT (via @nestjs/jwt) | Authentification par tokens | Variables `JWT_SECRET` et `JWT_EXPIRATION` dans `.env` | https://docs.nestjs.com/security/authentication |
-| Android SDK | Build et développement Android | Variable `ANDROID_HOME` dans l'environnement | https://developer.android.com/studio |
-| iOS SDK (macOS uniquement) | Build et développement iOS | Xcode installé, CocoaPods configuré | https://developer.apple.com/xcode/ |
+
+| Service                    | Usage                          | Configuration                                          | Documentation                                   |
+| -------------------------- | ------------------------------ | ------------------------------------------------------ | ----------------------------------------------- |
+| PostgreSQL                 | Base de données relationnelle  | Variable `DATABASE_URL` dans `.env`                    | https://www.postgresql.org/docs/                |
+| JWT (via @nestjs/jwt)      | Authentification par tokens    | Variables `JWT_SECRET` et `JWT_EXPIRATION` dans `.env` | https://docs.nestjs.com/security/authentication |
+| Android SDK                | Build et développement Android | Variable `ANDROID_HOME` dans l'environnement           | https://developer.android.com/studio            |
+| iOS SDK (macOS uniquement) | Build et développement iOS     | Xcode installé, CocoaPods configuré                    | https://developer.apple.com/xcode/              |
 
 ### Dépendances clés
-| Package | Version | Raison d'utilisation | Alternatives considérées |
-|---------|---------|----------------------|--------------------------|
-| @nestjs/core | 11.0.1 | Framework backend principal, injection de dépendances | Express seul, Fastify |
-| @nestjs/common | 11.0.1 | Utilitaires et décorateurs NestJS | - |
-| @prisma/client | 6.18.0 | Client type-safe pour accès à la base de données | TypeORM, Sequelize, Mongoose |
-| prisma | 6.18.0 | ORM et migrations de base de données | TypeORM, Sequelize |
-| react-native | 0.82.1 | Framework mobile multiplateforme | Flutter, Ionic, Xamarin |
-| @tamagui/core | 1.135.7 | Bibliothèque UI performante | React Native Paper, NativeBase |
-| @react-navigation/native | 7.1.19 | Navigation entre écrans | React Navigation (déjà utilisé) |
-| axios | 1.13.1 | Client HTTP pour requêtes API | fetch natif, ky |
-| react-native-encrypted-storage | 4.0.3 | Stockage sécurisé des tokens (KeyStore/Keychain) | AsyncStorage (moins sécurisé), react-native-keychain |
-| @nestjs/jwt | 11.0.1 | Génération et validation de tokens JWT | jsonwebtoken directement |
-| @nestjs/passport | 11.0.5 | Middleware d'authentification | Implémentation manuelle |
-| passport-jwt | 4.0.1 | Stratégie JWT pour Passport | - |
-| bcrypt | 6.0.0 | Hachage sécurisé des mots de passe | argon2, scrypt |
-| class-validator | 0.14.2 | Validation des DTOs et entrées utilisateur | joi, zod |
-| class-transformer | 0.5.1 | Transformation des objets (DTOs) | - |
-| react-hook-form | 7.66.0 | Gestion des formulaires dans React Native | Formik |
-| zod | 4.1.12 | Validation de schémas côté mobile | yup, joi |
+
+| Package                        | Version | Raison d'utilisation                                  | Alternatives considérées                             |
+| ------------------------------ | ------- | ----------------------------------------------------- | ---------------------------------------------------- |
+| @nestjs/core                   | 11.0.1  | Framework backend principal, injection de dépendances | Express seul, Fastify                                |
+| @nestjs/common                 | 11.0.1  | Utilitaires et décorateurs NestJS                     | -                                                    |
+| @prisma/client                 | 6.18.0  | Client type-safe pour accès à la base de données      | TypeORM, Sequelize, Mongoose                         |
+| prisma                         | 6.18.0  | ORM et migrations de base de données                  | TypeORM, Sequelize                                   |
+| react-native                   | 0.82.1  | Framework mobile multiplateforme                      | Flutter, Ionic, Xamarin                              |
+| @tamagui/core                  | 1.135.7 | Bibliothèque UI performante                           | React Native Paper, NativeBase                       |
+| @react-navigation/native       | 7.1.19  | Navigation entre écrans                               | React Navigation (déjà utilisé)                      |
+| axios                          | 1.13.1  | Client HTTP pour requêtes API                         | fetch natif, ky                                      |
+| react-native-encrypted-storage | 4.0.3   | Stockage sécurisé des tokens (KeyStore/Keychain)      | AsyncStorage (moins sécurisé), react-native-keychain |
+| @nestjs/jwt                    | 11.0.1  | Génération et validation de tokens JWT                | jsonwebtoken directement                             |
+| @nestjs/passport               | 11.0.5  | Middleware d'authentification                         | Implémentation manuelle                              |
+| passport-jwt                   | 4.0.1   | Stratégie JWT pour Passport                           | -                                                    |
+| bcrypt                         | 6.0.0   | Hachage sécurisé des mots de passe                    | argon2, scrypt                                       |
+| class-validator                | 0.14.2  | Validation des DTOs et entrées utilisateur            | joi, zod                                             |
+| class-transformer              | 0.5.1   | Transformation des objets (DTOs)                      | -                                                    |
+| react-hook-form                | 7.66.0  | Gestion des formulaires dans React Native             | Formik                                               |
+| zod                            | 4.1.12  | Validation de schémas côté mobile                     | yup, joi                                             |
 
 ## API Endpoints
 
 ### Auth (public)
+
 - `POST /auth/signup` - Inscription (email, mot de passe)
 - `POST /auth/login` - Connexion (email, mot de passe)
 - `POST /auth/forgot-password` - Réinitialisation mot de passe
 
 ### Users (authentifié - JWT requis)
+
 - `GET /users/me` - Profil utilisateur (nom, prénom ou pseudo, avatar)
 - `PATCH /users/me` - Mise à jour profil (pseudo, avatar, mot de passe)
 
 ### Runs (authentifié - JWT requis)
+
 - `GET /runs` - Liste des courses de l'utilisateur connecté (tri par date)
 - `POST /runs` - Créer une nouvelle course (date, durée, pattern_json)
 
 **État actuel :** Aucun endpoint métier n'est encore implémenté.
 
 **Endpoints existants (exemples) :**
+
 - `GET /` → Retourne "Hello World!" (controller de test dans `src/app.controller.ts`)
 
 **Voir `.cursor/API_DOCUMENTATION.md` pour la documentation détaillée des endpoints.**
@@ -293,6 +333,7 @@ Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend e
 ## ⚠️ Pièges connus et erreurs à éviter
 
 ### Erreurs courantes
+
 - **Migration Prisma non appliquée** : Le schéma (User, Profile, Run) est défini et la migration initiale existe dans `prisma/migrations/20260128223000_init/`. Si `DATABASE_URL` n'est pas configurée dans `.env` ou si la base `monkey_run` n'existe pas, `npm run prisma:migrate` échouera. Configurer `.env` puis exécuter la migration.
 - **Authentification non implémentée** : Les dépendances JWT et Passport sont installées mais le module `AuthModule` n'existe pas. Les guards JWT ne fonctionneront pas sans implémentation.
 - **URL API hardcodée** : Dans `mobile/src/services/api.ts`, l'URL de l'API est hardcodée avec `process.env.API_BASE_URL || 'http://localhost:3000/api'`. Pour Android, utiliser `http://10.0.2.2:3000/api` au lieu de `localhost`.
@@ -302,6 +343,7 @@ Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend e
 - **Pas de gestion CORS** : CORS n'est pas configuré explicitement dans `main.ts`, ce qui peut causer des problèmes de connexion mobile.
 
 ### Zones sensibles du code
+
 - **`src/prisma/prisma.service.ts`** : Service global critique pour l'accès à la base de données. Toute modification peut impacter toute l'application.
 - **`mobile/src/services/api.ts`** : Client HTTP centralisé avec intercepteurs. Modifications à faire avec précaution pour éviter de casser les requêtes.
 - **`mobile/src/services/storage.ts`** : Gestion du stockage sécurisé. Ne pas modifier les clés de stockage sans migration des données existantes.
@@ -310,6 +352,7 @@ Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend e
 - **`.env`** : Variables d'environnement critiques. Ne jamais commiter ce fichier.
 
 ### Limitations connues
+
 - **Migration Prisma à appliquer** : Les modèles User, Profile, Run sont définis dans `prisma/schema.prisma`. Appliquer la migration avec `npm run prisma:migrate` une fois `DATABASE_URL` configurée et la base `monkey_run` créée.
 - **Module AuthModule manquant** : À créer avec signup, login, forgot-password selon les spécifications.
 - **Module UsersModule manquant** : À créer avec GET/PATCH /users/me pour la gestion du profil.
@@ -329,6 +372,7 @@ Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend e
 ## 🤖 Règles pour l'agent Cursor
 
 ### AVANT toute modification
+
 - [ ] Lire ce fichier PROJECT_CONTEXT.md en entier
 - [ ] Vérifier les décisions architecturales existantes
 - [ ] Consulter les pièges connus
@@ -337,6 +381,7 @@ Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend e
 - [ ] Vérifier que les variables d'environnement requises sont documentées
 
 ### PENDANT la modification
+
 - [ ] Respecter les conventions de code établies ci-dessus
 - [ ] Ne PAS modifier les fichiers de configuration critique sans validation
 - [ ] Suivre les patterns architecturaux identifiés
@@ -347,6 +392,7 @@ Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend e
 - [ ] Gérer les erreurs de manière appropriée
 
 ### APRÈS chaque modification
+
 - [ ] Mettre à jour ce fichier PROJECT_CONTEXT.md dans la section "Journal des modifications"
 - [ ] Documenter toute nouvelle dépendance dans "Dépendances critiques"
 - [ ] Noter toute dette technique créée dans "Roadmap et Dette Technique"
@@ -356,19 +402,21 @@ Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend e
 - [ ] Mettre à jour la version du projet si nécessaire
 
 ### Conventions spécifiques au projet
+
 - **Backend :** Utiliser les décorateurs NestJS (@Controller, @Injectable, @UseGuards, @Get, @Post, @Patch)
 - **Backend :** Toujours valider les DTOs avec class-validator (décorateurs @IsEmail, @IsString, @MinLength, etc.)
 - **Backend :** Utiliser Prisma pour toutes les requêtes BDD (pas de SQL brut)
 - **Mobile :** Utiliser les composants Tamagui (pas de React Native natifs sauf nécessité)
 - **Mobile :** Formulaires avec react-hook-form + zod pour la validation
 - **Mobile :** Tout stockage sensible via react-native-encrypted-storage (jamais AsyncStorage pour les tokens)
-- **API :** Toutes les routes protégées sauf /auth/* nécessitent JWT (utiliser @UseGuards(JwtAuthGuard))
-- **Nommage :** 
+- **API :** Toutes les routes protégées sauf /auth/\* nécessitent JWT (utiliser @UseGuards(JwtAuthGuard))
+- **Nommage :**
   - Backend : PascalCase pour classes, camelCase pour méthodes/variables
   - Mobile : PascalCase pour composants, camelCase pour hooks/fonctions
   - BDD : snake_case pour tables et colonnes
 
 ### Interdictions absolues
+
 - ❌ Ne JAMAIS supprimer des tests existants sans justification documentée
 - ❌ Ne JAMAIS modifier les migrations de base de données déjà appliquées
 - ❌ Ne JAMAIS ignorer les erreurs TypeScript/de compilation/linting
@@ -382,10 +430,11 @@ Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend e
 - ❌ Ne JAMAIS stocker le JWT en clair (toujours encrypted-storage)
 - ❌ Ne JAMAIS envoyer le password_hash au frontend
 - ❌ Ne JAMAIS valider les données uniquement côté client (toujours valider côté backend)
-- ❌ Ne JAMAIS exposer les endpoints backend sans authentification (sauf /auth/*)
+- ❌ Ne JAMAIS exposer les endpoints backend sans authentification (sauf /auth/\*)
 - ❌ Ne JAMAIS utiliser des composants React Native natifs si Tamagui a l'équivalent
 
 ### Validation humaine requise pour
+
 - Changements dans la configuration de sécurité ou authentification
 - Modifications du schéma de base de données (migrations)
 - Ajout de dépendances majeures (frameworks, libraries core)
@@ -400,6 +449,7 @@ Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend e
 ## 🚀 Démarrage rapide pour nouveau développeur
 
 ### Prérequis
+
 - **Node.js** >= 18.x (20.x recommandé)
 - **npm** ou **yarn** (fourni avec Node.js)
 - **PostgreSQL** >= 14.x
@@ -408,6 +458,7 @@ Application mobile de course en fractionné guidée (MVP). **Phase 1 - Backend e
 - **Pour iOS (macOS uniquement)** : Xcode >= 14.x, CocoaPods (`sudo gem install cocoapods`)
 
 ### Installation (étapes exactes)
+
 ```bash
 # 1. Cloner le repository
 git clone <votre-repo-url>
@@ -427,6 +478,7 @@ cd ../..
 ```
 
 ### Configuration de l'environnement
+
 ```bash
 # 1. Créer le fichier .env à la racine du projet
 # (Copier depuis .env.example si disponible, sinon créer manuellement)
@@ -452,6 +504,7 @@ CREATE DATABASE monkey_run;
 ### Commandes essentielles
 
 **Backend (à la racine) :**
+
 - `npm run start:dev` - Démarre le serveur en mode développement avec watch
 - `npm run start:prod` - Démarre le serveur en mode production
 - `npm run build` - Compile le TypeScript en JavaScript
@@ -465,6 +518,7 @@ CREATE DATABASE monkey_run;
 - `npm run prisma:studio` - Ouvre Prisma Studio (interface graphique)
 
 **Mobile (dans mobile/) :**
+
 - `npm run android` - Lance l'application sur Android
 - `npm run ios` - Lance l'application sur iOS (macOS uniquement)
 - `npm start` - Démarre Metro Bundler
@@ -472,6 +526,7 @@ CREATE DATABASE monkey_run;
 - `npm run test` - Lance les tests Jest
 
 ### Lancer le projet
+
 ```bash
 # Terminal 1 : Backend
 npm run start:dev
@@ -484,6 +539,7 @@ npm run android  # ou npm run ios
 ```
 
 ### Vérifier que tout fonctionne
+
 ```bash
 # Backend
 curl http://localhost:3000
@@ -507,12 +563,14 @@ psql -U postgres -d monkey_run -c "SELECT version();"
 ### Schéma de base de données
 
 **Table `user` :**
+
 - `id` (PK, UUID ou Serial)
 - `email` (unique, string)
 - `password_hash` (string)
 - `created_at` (timestamp)
 
 **Table `profile` :**
+
 - `user_id` (FK → user.id, unique)
 - `pseudo` (string, nullable)
 - `avatar_url` (string, nullable)
@@ -520,6 +578,7 @@ psql -U postgres -d monkey_run -c "SELECT version();"
 - `last_name` (string, nullable)
 
 **Table `run` :**
+
 - `id` (PK, UUID ou Serial)
 - `user_id` (FK → user.id)
 - `date` (timestamp)
@@ -532,6 +591,7 @@ psql -U postgres -d monkey_run -c "SELECT version();"
 ### Prochaines étapes planifiées
 
 **Phase 1 - Backend (En cours)**
+
 1. ✅ Setup NestJS + PostgreSQL + Prisma (PrismaModule configuré)
 2. ✅ Définir le schéma Prisma (modèles User, Profile, Run)
 3. ❌ AuthModule (signup, login, forgot-password)
@@ -539,18 +599,21 @@ psql -U postgres -d monkey_run -c "SELECT version();"
 5. ❌ RunsModule (CRUD courses GET/POST /runs)
 
 **Phase 2 - Mobile (Auth)**
+
 1. ❌ Setup React Native + Tamagui (partiellement fait)
 2. ❌ Écrans d'authentification (signup, login, forgot-password)
 3. ✅ Stockage sécurisé du token JWT (service storage.ts existant)
 4. ❌ Appel GET /users/me pour vérifier l'auth
 
 **Phase 3 - Mobile (Chrono)**
+
 1. ❌ Écran chronomètre fonctionnel
 2. ❌ Notifications voix/vibration
 3. ❌ POST /runs à l'arrêt du chrono
 4. ❌ BackgroundTimer pour chrono en arrière-plan
 
 **Phase 4 - Mobile (Dashboard)**
+
 1. ❌ GET /runs pour afficher l'historique
 2. ❌ Tri et affichage des courses
 3. ❌ Statistiques et infos perso
@@ -558,28 +621,30 @@ psql -U postgres -d monkey_run -c "SELECT version();"
 **Voir `.cursor/DEVELOPMENT_PHASES.md` pour le détail complet des phases.**
 
 ### Dette technique identifiée
-| Issue | Impact | Effort estimé | Priorité | Fichier/Module |
-|-------|--------|---------------|----------|----------------|
-| ~~Schéma Prisma vide~~ | ~~Bloque toute utilisation de la base de données~~ | — | ✅ Résolu | `prisma/schema.prisma` |
-| Module AuthModule manquant | Authentification non fonctionnelle | 4-8h | 🔴 Haute | `src/auth/` (à créer) |
-| Module UsersModule manquant | Gestion profil utilisateur impossible | 3-5h | 🔴 Haute | `src/users/` (à créer) |
-| Module RunsModule manquant | Gestion des courses impossible | 3-5h | 🔴 Haute | `src/runs/` (à créer) |
-| Écrans mobile Auth non créés | Impossible de s'inscrire/se connecter | 6-10h | 🔴 Haute | `mobile/src/screens/auth/` (à créer) |
-| Chrono non implémenté | Fonctionnalité principale manquante | 8-12h | 🔴 Haute | `mobile/src/screens/timer/` (à créer) |
-| Dashboard mobile non implémenté | Impossible de consulter l'historique | 4-6h | 🟡 Moyenne | `mobile/src/screens/dashboard/` (à créer) |
-| Pas de gestion d'erreurs centralisée | Erreurs non standardisées, difficile à déboguer | 2-3h | 🟡 Moyenne | `src/common/filters/` (à créer) |
-| Pas de validation des DTOs | Entrées utilisateur non validées, risques sécurité | 3-5h | 🟡 Moyenne | Tous les controllers |
-| URL API hardcodée dans mobile | Configuration non flexible pour différents environnements | 1h | 🟡 Moyenne | `mobile/src/services/api.ts` |
-| Pas de refresh token automatique | Expiration des tokens non gérée automatiquement | 2-3h | 🟡 Moyenne | `mobile/src/services/api.ts` |
-| Pas de CORS configuré | Problèmes de connexion mobile possibles | 30min | 🟡 Moyenne | `src/main.ts` |
-| BackgroundTimer non configuré | Chrono ne fonctionne pas en arrière-plan | 2-3h | 🟡 Moyenne | `mobile/` (à installer et configurer) |
-| Couverture de tests limitée | Risques de régression, maintenance difficile | 8-16h | 🟡 Moyenne | Tous les modules |
-| Pas de CI/CD | Pas d'automatisation, risques de déploiement | 4-6h | 🟡 Moyenne | `.github/workflows/` (à créer) |
-| Pas de logging structuré | Difficile de déboguer en production | 2-3h | 🟢 Basse | `src/common/logger/` (à créer) |
-| Pas de documentation API | Difficile pour les développeurs frontend | 2-3h | 🟡 Moyenne | Swagger à configurer |
-| S3 pour avatars non configuré | Upload d'avatars impossible | 3-4h | 🟢 Basse | Configuration AWS S3 |
+
+| Issue                                | Impact                                                    | Effort estimé | Priorité   | Fichier/Module                            |
+| ------------------------------------ | --------------------------------------------------------- | ------------- | ---------- | ----------------------------------------- |
+| ~~Schéma Prisma vide~~               | ~~Bloque toute utilisation de la base de données~~        | —             | ✅ Résolu  | `prisma/schema.prisma`                    |
+| Module AuthModule manquant           | Authentification non fonctionnelle                        | 4-8h          | 🔴 Haute   | `src/auth/` (à créer)                     |
+| Module UsersModule manquant          | Gestion profil utilisateur impossible                     | 3-5h          | 🔴 Haute   | `src/users/` (à créer)                    |
+| Module RunsModule manquant           | Gestion des courses impossible                            | 3-5h          | 🔴 Haute   | `src/runs/` (à créer)                     |
+| Écrans mobile Auth non créés         | Impossible de s'inscrire/se connecter                     | 6-10h         | 🔴 Haute   | `mobile/src/screens/auth/` (à créer)      |
+| Chrono non implémenté                | Fonctionnalité principale manquante                       | 8-12h         | 🔴 Haute   | `mobile/src/screens/timer/` (à créer)     |
+| Dashboard mobile non implémenté      | Impossible de consulter l'historique                      | 4-6h          | 🟡 Moyenne | `mobile/src/screens/dashboard/` (à créer) |
+| Pas de gestion d'erreurs centralisée | Erreurs non standardisées, difficile à déboguer           | 2-3h          | 🟡 Moyenne | `src/common/filters/` (à créer)           |
+| Pas de validation des DTOs           | Entrées utilisateur non validées, risques sécurité        | 3-5h          | 🟡 Moyenne | Tous les controllers                      |
+| URL API hardcodée dans mobile        | Configuration non flexible pour différents environnements | 1h            | 🟡 Moyenne | `mobile/src/services/api.ts`              |
+| Pas de refresh token automatique     | Expiration des tokens non gérée automatiquement           | 2-3h          | 🟡 Moyenne | `mobile/src/services/api.ts`              |
+| Pas de CORS configuré                | Problèmes de connexion mobile possibles                   | 30min         | 🟡 Moyenne | `src/main.ts`                             |
+| BackgroundTimer non configuré        | Chrono ne fonctionne pas en arrière-plan                  | 2-3h          | 🟡 Moyenne | `mobile/` (à installer et configurer)     |
+| Couverture de tests limitée          | Risques de régression, maintenance difficile              | 8-16h         | 🟡 Moyenne | Tous les modules                          |
+| Pas de CI/CD                         | Pas d'automatisation, risques de déploiement              | 4-6h          | 🟡 Moyenne | `.github/workflows/` (à créer)            |
+| Pas de logging structuré             | Difficile de déboguer en production                       | 2-3h          | 🟢 Basse   | `src/common/logger/` (à créer)            |
+| Pas de documentation API             | Difficile pour les développeurs frontend                  | 2-3h          | 🟡 Moyenne | Swagger à configurer                      |
+| S3 pour avatars non configuré        | Upload d'avatars impossible                               | 3-4h          | 🟢 Basse   | Configuration AWS S3                      |
 
 ### Points d'attention
+
 - [ ] Implémenter le refresh token pour éviter les déconnexions fréquentes
 - [ ] Gérer les permissions Android pour les notifications et vibrations
 - [ ] Prévoir la gestion du chrono en arrière-plan (BackgroundTimer)
@@ -590,6 +655,7 @@ psql -U postgres -d monkey_run -c "SELECT version();"
 - [ ] Optimiser les performances du chrono (éviter les re-renders inutiles)
 
 ### Refactoring souhaité
+
 - **Centraliser la configuration** : Créer un module ConfigModule avec validation des variables d'environnement
 - **Créer des DTOs réutilisables** : Éviter la duplication de code dans les controllers
 - **Implémenter un système de logging structuré** : Remplacer les `console.log` par un logger professionnel

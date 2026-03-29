@@ -13,6 +13,9 @@ const STORAGE_KEYS = {
  * Service de stockage sécurisé pour gérer les tokens JWT et autres données sensibles
  */
 class SecureStorageService {
+  /** Cache mémoire du JWT pour éviter une lecture chiffrée à chaque requête HTTP (voir intercepteur axios). */
+  private jwtTokenMemory: string | null | undefined;
+
   /**
    * Sauvegarde le token JWT de manière sécurisée
    * @param token - Le token JWT à sauvegarder
@@ -21,6 +24,7 @@ class SecureStorageService {
   async saveJwtToken(token: string): Promise<boolean> {
     try {
       await EncryptedStorage.setItem(STORAGE_KEYS.JWT_TOKEN, token);
+      this.jwtTokenMemory = token;
       return true;
     } catch (error) {
       console.error('Erreur lors de la sauvegarde du token JWT:', error);
@@ -34,7 +38,11 @@ class SecureStorageService {
    */
   async getJwtToken(): Promise<string | null> {
     try {
+      if (this.jwtTokenMemory !== undefined) {
+        return this.jwtTokenMemory;
+      }
       const token = await EncryptedStorage.getItem(STORAGE_KEYS.JWT_TOKEN);
+      this.jwtTokenMemory = token;
       return token;
     } catch (error) {
       console.error('Erreur lors de la récupération du token JWT:', error);
@@ -48,6 +56,7 @@ class SecureStorageService {
    */
   async removeJwtToken(): Promise<boolean> {
     try {
+      this.jwtTokenMemory = null;
       await EncryptedStorage.removeItem(STORAGE_KEYS.JWT_TOKEN);
       return true;
     } catch (error) {
@@ -77,7 +86,9 @@ class SecureStorageService {
    */
   async getRefreshToken(): Promise<string | null> {
     try {
-      const refreshToken = await EncryptedStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+      const refreshToken = await EncryptedStorage.getItem(
+        STORAGE_KEYS.REFRESH_TOKEN,
+      );
       return refreshToken;
     } catch (error) {
       console.error('Erreur lors de la récupération du refresh token:', error);
@@ -110,7 +121,10 @@ class SecureStorageService {
       await EncryptedStorage.setItem(STORAGE_KEYS.USER_DATA, serializedData);
       return true;
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde des données utilisateur:', error);
+      console.error(
+        'Erreur lors de la sauvegarde des données utilisateur:',
+        error,
+      );
       return false;
     }
   }
@@ -125,7 +139,10 @@ class SecureStorageService {
       if (!data) return null;
       return JSON.parse(data);
     } catch (error) {
-      console.error('Erreur lors de la récupération des données utilisateur:', error);
+      console.error(
+        'Erreur lors de la récupération des données utilisateur:',
+        error,
+      );
       return null;
     }
   }
@@ -139,7 +156,10 @@ class SecureStorageService {
       await EncryptedStorage.removeItem(STORAGE_KEYS.USER_DATA);
       return true;
     } catch (error) {
-      console.error('Erreur lors de la suppression des données utilisateur:', error);
+      console.error(
+        'Erreur lors de la suppression des données utilisateur:',
+        error,
+      );
       return false;
     }
   }
@@ -150,10 +170,14 @@ class SecureStorageService {
    */
   async clearAll(): Promise<boolean> {
     try {
+      this.jwtTokenMemory = undefined;
       await EncryptedStorage.clear();
       return true;
     } catch (error) {
-      console.error('Erreur lors de la suppression de toutes les données:', error);
+      console.error(
+        'Erreur lors de la suppression de toutes les données:',
+        error,
+      );
       return false;
     }
   }
@@ -165,10 +189,7 @@ class SecureStorageService {
    */
   async clearTokens(): Promise<boolean> {
     try {
-      await Promise.all([
-        this.removeJwtToken(),
-        this.removeRefreshToken(),
-      ]);
+      await Promise.all([this.removeJwtToken(), this.removeRefreshToken()]);
       return true;
     } catch (error) {
       console.error('Erreur lors de la suppression des tokens:', error);
@@ -182,4 +203,3 @@ export default new SecureStorageService();
 
 // Export du type pour TypeScript si besoin
 export type { SecureStorageService };
-
