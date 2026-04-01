@@ -12,18 +12,21 @@
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@react-native/new-app-screen": "0.82.1",
+    "@react-navigation/bottom-tabs": "^7.15.7",
     "@react-navigation/native": "^7.1.19",
     "@react-navigation/native-stack": "^7.6.2",
     "@tamagui/config": "^1.135.7",
     "@tamagui/core": "^1.135.7",
     "@tamagui/vite-plugin": "^1.135.7",
     "axios": "^1.13.1",
+    "lucide-react-native": "^1.0.1",
     "react": "19.1.1",
     "react-hook-form": "^7.66.0",
     "react-native": "0.82.1",
     "react-native-encrypted-storage": "^4.0.3",
     "react-native-safe-area-context": "^5.5.2",
     "react-native-screens": "^4.18.0",
+    "react-native-svg": "^15.15.4",
     "zod": "^4.1.12"
   },
   "devDependencies": {

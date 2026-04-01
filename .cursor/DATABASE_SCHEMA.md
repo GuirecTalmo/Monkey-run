@@ -1,6 +1,6 @@
 # Schéma de Base de Données - Monkey-run
 
-**Dernière mise à jour :** 2026-01-28
+**Dernière mise à jour :** 2026-03-29 (inchangé fonctionnellement ; revue documentaire)
 
 Ce document décrit le schéma de base de données Prisma pour l'application Monkey-run.
 
@@ -30,10 +30,10 @@ model User {
   email        String    @unique
   passwordHash String    @map("password_hash")
   createdAt    DateTime  @default(now()) @map("created_at")
-  
+
   profile Profile?
   runs    Run[]
-  
+
   @@map("user")
 }
 
@@ -44,9 +44,9 @@ model Profile {
   avatarUrl String?  @map("avatar_url")
   firstName String?  @map("first_name")
   lastName  String?  @map("last_name")
-  
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@map("profile")
 }
 
@@ -57,9 +57,9 @@ model Run {
   durationSeconds Int     @map("duration_seconds")
   patternJson    Json     @map("pattern_json")
   createdAt      DateTime @default(now()) @map("created_at")
-  
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@index([userId])
   @@index([date])
   @@map("run")
@@ -74,18 +74,20 @@ model Run {
 
 Table principale pour les utilisateurs de l'application.
 
-| Colonne | Type | Contraintes | Description |
-|---------|------|-------------|-------------|
-| `id` | UUID | PK, DEFAULT uuid() | Identifiant unique de l'utilisateur |
-| `email` | String | UNIQUE, NOT NULL | Adresse email de l'utilisateur (utilisée pour la connexion) |
-| `password_hash` | String | NOT NULL | Hash bcrypt du mot de passe |
-| `created_at` | Timestamp | DEFAULT now() | Date de création du compte |
+| Colonne         | Type      | Contraintes        | Description                                                 |
+| --------------- | --------- | ------------------ | ----------------------------------------------------------- |
+| `id`            | UUID      | PK, DEFAULT uuid() | Identifiant unique de l'utilisateur                         |
+| `email`         | String    | UNIQUE, NOT NULL   | Adresse email de l'utilisateur (utilisée pour la connexion) |
+| `password_hash` | String    | NOT NULL           | Hash bcrypt du mot de passe                                 |
+| `created_at`    | Timestamp | DEFAULT now()      | Date de création du compte                                  |
 
 **Relations :**
+
 - Un utilisateur peut avoir un profil (`Profile`)
 - Un utilisateur peut avoir plusieurs courses (`Run[]`)
 
 **Index :**
+
 - Index automatique sur `id` (clé primaire)
 - Index unique sur `email`
 
@@ -95,20 +97,22 @@ Table principale pour les utilisateurs de l'application.
 
 Table pour les informations de profil des utilisateurs (relation 1:1 avec `user`).
 
-| Colonne | Type | Contraintes | Description |
-|---------|------|-------------|-------------|
-| `id` | UUID | PK, DEFAULT uuid() | Identifiant unique du profil |
-| `user_id` | UUID | FK → user.id, UNIQUE, NOT NULL | Référence à l'utilisateur |
-| `pseudo` | String | NULL | Pseudonyme de l'utilisateur |
-| `avatar_url` | String | NULL | URL de l'avatar (S3 ou autre) |
-| `first_name` | String | NULL | Prénom de l'utilisateur |
-| `last_name` | String | NULL | Nom de famille de l'utilisateur |
+| Colonne      | Type   | Contraintes                    | Description                     |
+| ------------ | ------ | ------------------------------ | ------------------------------- |
+| `id`         | UUID   | PK, DEFAULT uuid()             | Identifiant unique du profil    |
+| `user_id`    | UUID   | FK → user.id, UNIQUE, NOT NULL | Référence à l'utilisateur       |
+| `pseudo`     | String | NULL                           | Pseudonyme de l'utilisateur     |
+| `avatar_url` | String | NULL                           | URL de l'avatar (S3 ou autre)   |
+| `first_name` | String | NULL                           | Prénom de l'utilisateur         |
+| `last_name`  | String | NULL                           | Nom de famille de l'utilisateur |
 
 **Relations :**
+
 - Un profil appartient à un utilisateur (`User`)
 - Suppression en cascade si l'utilisateur est supprimé
 
 **Index :**
+
 - Index automatique sur `id` (clé primaire)
 - Index unique sur `user_id`
 
@@ -118,29 +122,32 @@ Table pour les informations de profil des utilisateurs (relation 1:1 avec `user`
 
 Table pour les courses enregistrées par les utilisateurs.
 
-| Colonne | Type | Contraintes | Description |
-|---------|------|-------------|-------------|
-| `id` | UUID | PK, DEFAULT uuid() | Identifiant unique de la course |
-| `user_id` | UUID | FK → user.id, NOT NULL | Référence à l'utilisateur |
-| `date` | Timestamp | NOT NULL | Date et heure de la course |
-| `duration_seconds` | Integer | NOT NULL | Durée totale de la course en secondes |
-| `pattern_json` | JSON | NOT NULL | Configuration du fractionné (ex: `{"fast": 60, "slow": 60}`) |
-| `created_at` | Timestamp | DEFAULT now() | Date de création de l'enregistrement |
+| Colonne            | Type      | Contraintes            | Description                                                  |
+| ------------------ | --------- | ---------------------- | ------------------------------------------------------------ |
+| `id`               | UUID      | PK, DEFAULT uuid()     | Identifiant unique de la course                              |
+| `user_id`          | UUID      | FK → user.id, NOT NULL | Référence à l'utilisateur                                    |
+| `date`             | Timestamp | NOT NULL               | Date et heure de la course                                   |
+| `duration_seconds` | Integer   | NOT NULL               | Durée totale de la course en secondes                        |
+| `pattern_json`     | JSON      | NOT NULL               | Configuration du fractionné (ex: `{"fast": 60, "slow": 60}`) |
+| `created_at`       | Timestamp | DEFAULT now()          | Date de création de l'enregistrement                         |
 
 **Relations :**
+
 - Une course appartient à un utilisateur (`User`)
 - Suppression en cascade si l'utilisateur est supprimé
 
 **Index :**
+
 - Index automatique sur `id` (clé primaire)
 - Index sur `user_id` (pour les requêtes par utilisateur)
 - Index sur `date` (pour le tri par date)
 
 **Format de `pattern_json` :**
+
 ```json
 {
-  "fast": 60,    // Durée de la phase rapide en secondes
-  "slow": 60     // Durée de la phase de récupération en secondes
+  "fast": 60, // Durée de la phase rapide en secondes
+  "slow": 60 // Durée de la phase de récupération en secondes
 }
 ```
 
@@ -155,6 +162,7 @@ npm run prisma:migrate
 ```
 
 Cette commande va :
+
 1. Créer un nouveau dossier dans `prisma/migrations/`
 2. Générer le SQL pour créer les tables
 3. Appliquer la migration à la base de données
@@ -271,6 +279,7 @@ const passwordHash = await bcrypt.hash(password, saltRounds);
 ### Ajouts possibles
 
 1. **Table `refresh_token`** : Pour gérer les refresh tokens JWT
+
    ```prisma
    model RefreshToken {
      id        String   @id @default(uuid())
@@ -278,15 +287,16 @@ const passwordHash = await bcrypt.hash(password, saltRounds);
      token     String   @unique
      expiresAt DateTime @map("expires_at")
      createdAt DateTime @default(now()) @map("created_at")
-     
+
      user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-     
+
      @@index([userId])
      @@map("refresh_token")
    }
    ```
 
 2. **Table `password_reset`** : Pour gérer les tokens de réinitialisation
+
    ```prisma
    model PasswordReset {
      id        String   @id @default(uuid())
@@ -295,9 +305,9 @@ const passwordHash = await bcrypt.hash(password, saltRounds);
      expiresAt DateTime @map("expires_at")
      used      Boolean  @default(false)
      createdAt DateTime @default(now()) @map("created_at")
-     
+
      user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-     
+
      @@index([userId])
      @@index([token])
      @@map("password_reset")
@@ -313,9 +323,9 @@ const passwordHash = await bcrypt.hash(password, saltRounds);
      totalDuration   Int      @default(0) @map("total_duration")
      lastRunDate     DateTime? @map("last_run_date")
      updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
-     
+
      user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-     
+
      @@map("user_stats")
    }
    ```

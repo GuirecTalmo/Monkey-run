@@ -6,6 +6,7 @@ Application complète de gestion d'entraînements de course en fractionné, comp
 
 ## 📋 Table des matières
 
+- [Démarrage rapide (commandes)](#-démarrage-rapide-commandes)
 - [Prérequis système](#-prérequis-système)
 - [Installation d'Android Studio](#-installation-dandroid-studio)
 - [Structure du projet](#-structure-du-projet)
@@ -19,26 +20,88 @@ Application complète de gestion d'entraînements de course en fractionné, comp
 
 ---
 
+## 🚀 Démarrage rapide (commandes)
+
+Ordre recommandé : **PostgreSQL démarré** → **backend** → **Metro** → **application Android** (ou iOS sur macOS).
+
+### 1. Backend (racine du dépôt `Monkey-run/`)
+
+```bash
+cd Monkey-run
+npm install
+# Créer la base et le fichier .env si ce n’est pas déjà fait (voir Variables d’environnement)
+npm run prisma:migrate
+npm run start:dev
+```
+
+L’API écoute par défaut sur `http://localhost:3000` (préfixe `/api`).
+
+### 2. Metro Bundler (terminal séparé)
+
+```bash
+cd Monkey-run/mobile
+npm install
+npm start
+```
+
+Après un changement de dépendances ou de config Metro, vous pouvez forcer un cache propre :
+
+```bash
+cd Monkey-run/mobile
+npx react-native start --reset-cache
+```
+
+### 3. Lancer l’app sur l’émulateur ou l’appareil (autre terminal)
+
+**Android**
+
+```bash
+cd Monkey-run/mobile
+npm run android
+```
+
+**iOS (macOS uniquement)**
+
+```bash
+cd Monkey-run/mobile
+npm run ios
+```
+
+> **Émulateur Android :** utilisez `http://10.0.2.2:3000/api` comme base d’API dans `mobile/src/services/api.ts` (voir section Mobile ci‑dessous). **Appareil physique :** utilisez l’IP locale de votre machine.
+
+### Arrêter le projet
+
+- Dans chaque terminal où tourne une commande : **Ctrl+C**.
+- Fermer l’app sur l’émulateur ou le téléphone si besoin.
+
+Les sections suivantes détaillent prérequis, installation pas à pas et dépannage.
+
+---
+
 ## 🔧 Prérequis système
 
 Avant de commencer, assurez-vous d'avoir installé les outils suivants :
 
 ### Obligatoires
+
 - **Node.js** >= 18.x (20.x recommandé) ([Télécharger](https://nodejs.org/))
 - **npm** ou **yarn** (fourni avec Node.js)
 - **PostgreSQL** >= 14.x ([Télécharger](https://www.postgresql.org/download/))
 
 ### Pour le développement mobile (Android)
+
 - **Android Studio** avec Android SDK ([Télécharger](https://developer.android.com/studio))
 - **Java JDK 17** ([Télécharger](https://adoptium.net/))
 - **Android SDK** (API 33 ou supérieure recommandée, installé via Android Studio)
 - **Android Emulator** (AVD - Android Virtual Device)
 
 ### Pour le développement mobile (iOS) - macOS uniquement
+
 - **Xcode** >= 14.x ([Télécharger depuis l'App Store](https://apps.apple.com/app/xcode/id497799835))
 - **CocoaPods** (`sudo gem install cocoapods`)
 
 ### Optionnel mais recommandé (macOS/Linux)
+
 - **Watchman** ([Télécharger](https://facebook.github.io/watchman/docs/install)) - Améliore les performances de Metro Bundler
 
 ---
@@ -93,6 +156,7 @@ export PATH=$PATH:$ANDROID_HOME/tools/bin
 ```
 
 Rechargez votre terminal :
+
 ```bash
 source ~/.zshrc  # ou source ~/.bashrc
 ```
@@ -133,8 +197,14 @@ Monkey-run/
 ├── 📱 mobile/              # Application React Native
 │   ├── android/           # Configuration Android
 │   ├── ios/               # Configuration iOS
-│   ├── src/               # Code source React Native
-│   │   └── services/      # Services (API, stockage)
+│   ├── src/
+│   │   ├── components/    # Composants (ex. MainTabBar, SessionCard, ScreenBackground)
+│   │   ├── navigation/    # RootNavigator, types de routes
+│   │   ├── screens/       # Écrans (onboarding, auth, tabs, profil, chrono, etc.)
+│   │   ├── services/      # API (axios), stockage chiffré
+│   │   └── theme/         # Couleurs, typo (Tamagui)
+│   ├── App.tsx
+│   ├── tamagui.config.ts
 │   └── package.json
 │
 ├── 🖥️  src/                # Code source Backend NestJS
@@ -245,12 +315,14 @@ Le serveur démarre sur `http://localhost:3000` par défaut. L’API est préfix
 ### 7️⃣ Vérifier l'installation
 
 **Vérifications** :
+
 1. Vérifiez que le serveur démarre sans erreur dans le terminal
 2. La racine de l’API répond sur `http://localhost:3000/api`
 3. Vérifiez que la connexion à PostgreSQL fonctionne (aucune erreur dans les logs)
 4. Testez les endpoints (auth, users, runs) avec un client REST (Postman, curl, etc.)
 
 **Test rapide avec curl** :
+
 ```bash
 curl http://localhost:3000/api
 ```
@@ -278,6 +350,7 @@ npm install
 Avant de continuer, assurez-vous que les variables d'environnement Android sont configurées (voir section [Installation d'Android Studio](#-installation-dandroid-studio)).
 
 **Vérifier la configuration** :
+
 ```bash
 # Vérifier que Android SDK est détecté
 echo $ANDROID_HOME  # macOS/Linux
@@ -368,6 +441,7 @@ npm run android
 ```
 
 Cette commande va :
+
 1. Compiler l'application Android (Gradle build)
 2. Installer l'application sur l'émulateur/appareil
 3. Démarrer automatiquement Metro Bundler si ce n'est pas déjà fait
@@ -411,12 +485,12 @@ PORT=3000  # Port du serveur NestJS
 
 **Exemples de valeurs** :
 
-| Variable | Exemple de valeur | Description |
-|----------|-------------------|-------------|
-| `DATABASE_URL` | `postgresql://postgres:mypass@localhost:5432/monkey_run?schema=public` | URL complète de connexion PostgreSQL |
-| `JWT_SECRET` | `aB3xK9mP2vL8nQ5rT7wY4zU6hJ1cF0dE` | Secret pour signer les tokens JWT (minimum 32 caractères) |
-| `JWT_EXPIRATION` | `7d` ou `24h` ou `3600s` | Durée de validité du token |
-| `PORT` | `3000` | Port du serveur backend |
+| Variable         | Exemple de valeur                                                      | Description                                               |
+| ---------------- | ---------------------------------------------------------------------- | --------------------------------------------------------- |
+| `DATABASE_URL`   | `postgresql://postgres:mypass@localhost:5432/monkey_run?schema=public` | URL complète de connexion PostgreSQL                      |
+| `JWT_SECRET`     | `aB3xK9mP2vL8nQ5rT7wY4zU6hJ1cF0dE`                                     | Secret pour signer les tokens JWT (minimum 32 caractères) |
+| `JWT_EXPIRATION` | `7d` ou `24h` ou `3600s`                                               | Durée de validité du token                                |
+| `PORT`           | `3000`                                                                 | Port du serveur backend                                   |
 
 ### Mobile
 
@@ -440,12 +514,14 @@ const API_BASE_URL = 'http://10.0.2.2:3000/api';
 #### Option 2 : Utiliser react-native-config (Recommandé pour production)
 
 1. Installez `react-native-config` :
+
 ```bash
 cd mobile
 npm install react-native-config
 ```
 
 2. Créez `mobile/.env` :
+
 ```env
 # URL de l'API backend
 # Pour émulateur Android
@@ -459,6 +535,7 @@ API_BASE_URL=http://10.0.2.2:3000/api
 ```
 
 3. Utilisez dans le code :
+
 ```typescript
 import Config from 'react-native-config';
 const API_BASE_URL = Config.API_BASE_URL || 'http://localhost:3000/api';
@@ -530,6 +607,7 @@ npx react-native doctor
 ```
 
 Cet outil vérifie automatiquement :
+
 - ✅ Node.js version
 - ✅ npm/yarn version
 - ✅ Java JDK installation
@@ -542,6 +620,7 @@ Cet outil vérifie automatiquement :
 #### Backend
 
 1. Démarrez le serveur backend :
+
    ```bash
    npm run start:dev
    ```
@@ -558,12 +637,14 @@ Cet outil vérifie automatiquement :
 2. Configurez l'URL de l'API dans `mobile/src/services/api.ts`
 
 3. Démarrez Metro Bundler :
+
    ```bash
    cd mobile
    npm start
    ```
 
 4. Dans un autre terminal, lancez l'app :
+
    ```bash
    cd mobile
    npm run android
@@ -592,32 +673,32 @@ Cet outil vérifie automatiquement :
 
 ### Backend (à la racine)
 
-| Script | Description |
-|--------|-------------|
-| `npm run start:dev` | Démarre le serveur en mode développement avec watch |
-| `npm run start:prod` | Démarre le serveur en mode production |
-| `npm run build` | Compile le TypeScript en JavaScript |
-| `npm run test` | Lance les tests unitaires |
-| `npm run test:watch` | Lance les tests en mode watch |
-| `npm run test:e2e` | Lance les tests end-to-end |
-| `npm run lint` | Vérifie et corrige le code avec ESLint |
-| `npm run format` | Formate le code avec Prettier |
-| `npm run prisma:generate` | Génère le client Prisma |
-| `npm run prisma:migrate` | Crée et applique les migrations |
-| `npm run prisma:migrate:deploy` | Applique les migrations en production |
-| `npm run prisma:studio` | Ouvre Prisma Studio (interface graphique) |
-| `npm run prisma:migrate:reset` | Réinitialise la base de données |
-| `npm run db:create` | Crée la base de données `monkey_run` (si PostgreSQL est démarré) |
+| Script                          | Description                                                      |
+| ------------------------------- | ---------------------------------------------------------------- |
+| `npm run start:dev`             | Démarre le serveur en mode développement avec watch              |
+| `npm run start:prod`            | Démarre le serveur en mode production                            |
+| `npm run build`                 | Compile le TypeScript en JavaScript                              |
+| `npm run test`                  | Lance les tests unitaires                                        |
+| `npm run test:watch`            | Lance les tests en mode watch                                    |
+| `npm run test:e2e`              | Lance les tests end-to-end                                       |
+| `npm run lint`                  | Vérifie et corrige le code avec ESLint                           |
+| `npm run format`                | Formate le code avec Prettier                                    |
+| `npm run prisma:generate`       | Génère le client Prisma                                          |
+| `npm run prisma:migrate`        | Crée et applique les migrations                                  |
+| `npm run prisma:migrate:deploy` | Applique les migrations en production                            |
+| `npm run prisma:studio`         | Ouvre Prisma Studio (interface graphique)                        |
+| `npm run prisma:migrate:reset`  | Réinitialise la base de données                                  |
+| `npm run db:create`             | Crée la base de données `monkey_run` (si PostgreSQL est démarré) |
 
 ### Mobile (dans mobile/)
 
-| Script | Description |
-|--------|-------------|
-| `npm run android` | Lance l'application sur Android |
-| `npm run ios` | Lance l'application sur iOS (macOS uniquement) |
-| `npm start` | Démarre Metro Bundler |
-| `npm run lint` | Vérifie le code avec ESLint |
-| `npm run test` | Lance les tests Jest |
+| Script            | Description                                    |
+| ----------------- | ---------------------------------------------- |
+| `npm run android` | Lance l'application sur Android                |
+| `npm run ios`     | Lance l'application sur iOS (macOS uniquement) |
+| `npm start`       | Démarre Metro Bundler                          |
+| `npm run lint`    | Vérifie le code avec ESLint                    |
+| `npm run test`    | Lance les tests Jest                           |
 
 ---
 
@@ -637,6 +718,7 @@ Backend Stack:
 ```
 
 #### Modules principaux
+
 - **PrismaModule** : Service global pour l'accès à la base de données
 - **AuthModule** : Authentification JWT (signup, login, forgot-password)
 - **UsersModule** : Profil utilisateur (GET/PATCH /users/me, changement de mot de passe)
@@ -657,6 +739,7 @@ Mobile Stack:
 ```
 
 #### Structure mobile
+
 - **Services** : API client, stockage sécurisé
 - **Navigation** : Configuration React Navigation
 - **Components** : Composants réutilisables avec Tamagui
@@ -670,7 +753,9 @@ Mobile Stack:
 **Erreur** : `Can't reach database server` ou `Connection refused`
 
 **Solutions** :
+
 1. Vérifiez que PostgreSQL est démarré :
+
    ```bash
    # Windows
    net start postgresql-x64-XX  # Remplacez XX par votre version
@@ -685,26 +770,31 @@ Mobile Stack:
    ```
 
 2. Vérifiez que PostgreSQL écoute sur le bon port :
+
    ```bash
    # Par défaut, PostgreSQL utilise le port 5432
    psql -U postgres -h localhost -p 5432
    ```
 
 3. Vérifiez la `DATABASE_URL` dans `.env` :
+
    ```env
    DATABASE_URL="postgresql://username:password@localhost:5432/monkey_run?schema=public"
    ```
+
    - Vérifiez que `username` et `password` sont corrects
    - Vérifiez que le port est `5432` (ou celui que vous utilisez)
    - Vérifiez que le nom de la base `monkey_run` existe
 
 4. Vérifiez que la base de données existe :
+
    ```bash
    psql -U postgres -l
    # Cherchez "monkey_run" dans la liste
    ```
 
 5. Si la base n'existe pas, créez-la :
+
    ```bash
    psql -U postgres
    CREATE DATABASE monkey_run;
@@ -712,11 +802,13 @@ Mobile Stack:
    ```
 
 6. Testez la connexion manuellement :
+
    ```bash
    psql "postgresql://username:password@localhost:5432/monkey_run?schema=public"
    ```
 
 7. Vérifiez les logs PostgreSQL pour plus de détails :
+
    ```bash
    # macOS (Homebrew)
    tail -f /usr/local/var/postgresql@14/log/postgres.log
@@ -728,6 +820,7 @@ Mobile Stack:
 ### ❌ Erreur "Module not found" après npm install
 
 **Solution** :
+
 ```bash
 # Supprimez node_modules et réinstallez
 rm -rf node_modules package-lock.json
@@ -739,7 +832,9 @@ npm install
 **Erreur** : `Metro bundler has encountered an error`
 
 **Solutions** :
+
 1. Nettoyez le cache :
+
    ```bash
    cd mobile
    npm start -- --reset-cache
@@ -755,7 +850,9 @@ npm install
 **Erreur** : Network request failed
 
 **Solutions** :
+
 1. Utilisez `10.0.2.2` au lieu de `localhost` pour Android :
+
    ```typescript
    const API_BASE_URL = 'http://10.0.2.2:3000/api';
    ```
@@ -768,7 +865,9 @@ npm install
 **Erreur** : `SDK location not found` ou `ANDROID_HOME not set`
 
 **Solutions** :
+
 1. Vérifiez que `ANDROID_HOME` est défini :
+
    ```bash
    echo $ANDROID_HOME  # macOS/Linux
    echo %ANDROID_HOME% # Windows PowerShell
@@ -788,20 +887,24 @@ npm install
 **Erreur** : `Network request failed` ou `Connection refused`
 
 **Solutions** :
+
 1. **Utilisez `10.0.2.2` au lieu de `localhost`** :
+
    ```typescript
-   const API_BASE_URL = 'http://10.0.2.2:3000/api';  // ✅ Correct pour émulateur Android
+   const API_BASE_URL = 'http://10.0.2.2:3000/api'; // ✅ Correct pour émulateur Android
    // const API_BASE_URL = 'http://localhost:3000/api';  // ❌ Ne fonctionne pas dans émulateur
    ```
 
 2. Vérifiez que le backend tourne sur le port 3000 :
+
    ```bash
    curl http://localhost:3000
    ```
 
 3. Pour un appareil physique, utilisez l'IP locale de votre machine :
+
    ```typescript
-   const API_BASE_URL = 'http://192.168.1.100:3000/api';  // Remplacez par votre IP
+   const API_BASE_URL = 'http://192.168.1.100:3000/api'; // Remplacez par votre IP
    ```
 
 4. Vérifiez que le firewall Windows/Mac n'bloque pas le port 3000
@@ -811,13 +914,16 @@ npm install
 **Erreur** : Erreurs inexpliquées, modules introuvables, comportement étrange
 
 **Solutions** :
+
 1. Nettoyer le cache Metro :
+
    ```bash
    cd mobile
    npm start -- --reset-cache
    ```
 
 2. Supprimer le cache manuellement :
+
    ```bash
    # macOS/Linux
    rm -rf $TMPDIR/metro-*
@@ -839,7 +945,9 @@ npm install
 ### ❌ Erreur "react-native-encrypted-storage" non trouvé
 
 **Solution** :
+
 1. Rebuild l'application Android :
+
    ```bash
    cd mobile/android
    ./gradlew clean
@@ -858,7 +966,9 @@ npm install
 **Erreur** : `Gradle build failed` ou erreurs de compilation Android
 
 **Solutions** :
+
 1. Nettoyer le projet Gradle :
+
    ```bash
    cd mobile/android
    ./gradlew clean
@@ -866,11 +976,13 @@ npm install
    ```
 
 2. Vérifiez la version de Java :
+
    ```bash
    java -version  # Doit être JDK 17
    ```
 
 3. Configurez `JAVA_HOME` si nécessaire :
+
    ```bash
    # macOS/Linux
    export JAVA_HOME=$(/usr/libexec/java_home -v 17)
@@ -880,6 +992,7 @@ npm install
    ```
 
 4. Supprimez le cache Gradle :
+
    ```bash
    # macOS/Linux
    rm -rf ~/.gradle/caches/
@@ -895,6 +1008,7 @@ npm install
 **Erreur** : `DATABASE_URL not found`
 
 **Solutions** :
+
 1. Vérifiez que le fichier `.env` existe à la racine
 2. Vérifiez que la variable `DATABASE_URL` est bien définie
 3. Redémarrez votre serveur de développement
@@ -904,6 +1018,7 @@ npm install
 **Erreur** : `Migration failed`
 
 **Solutions** :
+
 1. Vérifiez que la base de données est accessible
 2. Vérifiez les permissions PostgreSQL
 3. Réinitialisez les migrations si nécessaire :

@@ -1,13 +1,13 @@
 # 📊 Analyse Approfondie du Projet Monkey-run
 
-**Date d'analyse** : 2024 (mise à jour 2026-02-22)  
+**Date d'analyse** : 2024 (mise à jour 2026-03-29)  
 **Version du projet** : 0.0.1
 
 ---
 
 ## 1. Résumé Exécutif
 
-**Monkey-run** est une application complète de gestion d'entraînements de course en fractionné, composée d'un backend API sécurisé (NestJS) et d'une application mobile (React Native). Le backend **Phase 1 est terminé** : API REST sous le préfixe `/api`, modules Auth (signup, login, forgot-password), Users (profil, mot de passe), Runs (CRUD courses avec pagination), Prisma + PostgreSQL, JWT, CORS et ValidationPipe. L'application mobile (React Native + Tamagui) est en place avec services API et stockage ; les écrans et la navigation restent à développer (Phase 2 et suivantes).
+**Monkey-run** est une application complète de gestion d'entraînements de course en fractionné, composée d'un backend API sécurisé (NestJS) et d'une application mobile (React Native). Le backend **Phase 1 est terminé** : API REST sous le préfixe `/api`, modules Auth (signup, login, forgot-password), Users (profil, mot de passe), Runs (CRUD courses avec pagination), Prisma + PostgreSQL, JWT, CORS et ValidationPipe. L'application mobile (React Native + Tamagui) dispose d'une **navigation complète** (stack + onglets), d’**écrans UI** (onboarding, login/signup, dashboard, chrono, historique, profil, détail de session), des **services** `api.ts` et `storage.ts` ; il reste à **finaliser l’auth applicative** (hook `useAuth`, garde de routes), le **chrono métier**, l’**enregistrement des courses** (`POST /runs`) et le **branchement des listes** sur `GET /runs` (Phases 2–4).
 
 ---
 
@@ -15,37 +15,37 @@
 
 ### Backend (NestJS)
 
-| Catégorie | Technologie | Version | Usage |
-|-----------|------------|---------|-------|
-| **Framework** | NestJS | 11.0.1 | Framework Node.js modulaire |
-| **Langage** | TypeScript | 5.7.3 | Langage principal |
-| **Runtime** | Node.js | >= 18.x (20.x recommandé) | Environnement d'exécution |
-| **ORM** | Prisma | 6.18.0 | Gestion de la base de données |
-| **Base de données** | PostgreSQL | >= 14.x | SGBD relationnel |
-| **Authentification** | JWT + Passport | 11.0.1 / 11.0.5 | Gestion des tokens |
-| **Hachage** | bcrypt | 6.0.0 | Chiffrement des mots de passe |
-| **Validation** | class-validator | 0.14.2 | Validation des DTOs |
-| **Transformation** | class-transformer | 0.5.1 | Transformation des objets |
-| **Configuration** | @nestjs/config | 4.0.2 | Variables d'environnement |
-| **Tests** | Jest | 30.0.0 | Framework de tests |
-| **Linting** | ESLint | 9.18.0 | Analyse statique |
-| **Formatage** | Prettier | 3.4.2 | Formatage du code |
+| Catégorie            | Technologie       | Version                   | Usage                         |
+| -------------------- | ----------------- | ------------------------- | ----------------------------- |
+| **Framework**        | NestJS            | 11.0.1                    | Framework Node.js modulaire   |
+| **Langage**          | TypeScript        | 5.7.3                     | Langage principal             |
+| **Runtime**          | Node.js           | >= 18.x (20.x recommandé) | Environnement d'exécution     |
+| **ORM**              | Prisma            | 6.18.0                    | Gestion de la base de données |
+| **Base de données**  | PostgreSQL        | >= 14.x                   | SGBD relationnel              |
+| **Authentification** | JWT + Passport    | 11.0.1 / 11.0.5           | Gestion des tokens            |
+| **Hachage**          | bcrypt            | 6.0.0                     | Chiffrement des mots de passe |
+| **Validation**       | class-validator   | 0.14.2                    | Validation des DTOs           |
+| **Transformation**   | class-transformer | 0.5.1                     | Transformation des objets     |
+| **Configuration**    | @nestjs/config    | 4.0.2                     | Variables d'environnement     |
+| **Tests**            | Jest              | 30.0.0                    | Framework de tests            |
+| **Linting**          | ESLint            | 9.18.0                    | Analyse statique              |
+| **Formatage**        | Prettier          | 3.4.2                     | Formatage du code             |
 
 ### Mobile (React Native)
 
-| Catégorie | Technologie | Version | Usage |
-|-----------|------------|---------|-------|
-| **Framework** | React Native | 0.82.1 | Framework mobile multiplateforme |
-| **Langage** | TypeScript | 5.8.3 | Langage principal |
-| **UI Library** | Tamagui | 1.135.7 | Bibliothèque de composants UI |
-| **Navigation** | React Navigation | 7.1.19 / 7.6.2 | Gestion de la navigation |
-| **HTTP Client** | Axios | 1.13.1 | Requêtes API |
-| **Formulaires** | React Hook Form | 7.66.0 | Gestion des formulaires |
-| **Validation** | Zod | 4.1.12 | Validation de schémas |
-| **Stockage** | react-native-encrypted-storage | 4.0.3 | Stockage sécurisé (KeyStore) |
-| **Safe Area** | react-native-safe-area-context | 5.5.2 | Gestion des zones sûres |
-| **Tests** | Jest | 29.6.3 | Framework de tests |
-| **Build Tool** | Metro Bundler | 0.82.1 | Bundler React Native |
+| Catégorie       | Technologie                            | Version | Usage                            |
+| --------------- | -------------------------------------- | ------- | -------------------------------- |
+| **Framework**   | React Native                           | 0.82.1  | Framework mobile multiplateforme |
+| **Langage**     | TypeScript                             | 5.8.3   | Langage principal                |
+| **UI Library**  | Tamagui                                | 1.135.7 | Bibliothèque de composants UI    |
+| **Navigation**  | React Navigation (stack + bottom tabs) | 7.x     | Gestion de la navigation         |
+| **HTTP Client** | Axios                                  | 1.13.1  | Requêtes API                     |
+| **Formulaires** | React Hook Form                        | 7.66.0  | Gestion des formulaires          |
+| **Validation**  | Zod                                    | 4.1.12  | Validation de schémas            |
+| **Stockage**    | react-native-encrypted-storage         | 4.0.3   | Stockage sécurisé (KeyStore)     |
+| **Safe Area**   | react-native-safe-area-context         | 5.5.2   | Gestion des zones sûres          |
+| **Tests**       | Jest                                   | 29.6.3  | Framework de tests               |
+| **Build Tool**  | Metro Bundler                          | 0.82.1  | Bundler React Native             |
 
 ### Outils de Build et Configuration
 
@@ -63,6 +63,7 @@
 Le projet suit une **architecture modulaire** inspirée de l'architecture hexagonale, avec séparation claire des responsabilités :
 
 #### Backend (NestJS)
+
 - **Pattern** : Architecture modulaire NestJS (similaire à Angular)
 - **Structure** : Modules → Controllers → Services → Repositories (via Prisma)
 - **Séparation des couches** :
@@ -71,12 +72,13 @@ Le projet suit une **architecture modulaire** inspirée de l'architecture hexago
   - **Données** : PrismaService (accès à la base de données)
 
 #### Mobile (React Native)
+
 - **Pattern** : Architecture par services et composants
 - **Structure** : Services → Composants → Navigation
 - **Séparation des responsabilités** :
   - **Services** : API client, stockage sécurisé
   - **Composants** : UI réutilisables (Tamagui)
-  - **Navigation** : React Navigation (stack navigation)
+  - **Navigation** : React Navigation (pile native + onglets bas)
 
 ### Patterns de Design Identifiés
 
@@ -97,6 +99,7 @@ PostgreSQL Database
 ```
 
 **Flux d'authentification** :
+
 1. Mobile → POST `/auth/login` → Backend
 2. Backend → Validation → Génération JWT
 3. Backend → Retour JWT → Mobile
@@ -175,7 +178,7 @@ Monkey-run/
 
 ### Conventions de Nommage
 
-- **Backend** : 
+- **Backend** :
   - Fichiers : `kebab-case` (ex: `app.controller.ts`)
   - Classes : `PascalCase` (ex: `AppController`)
   - Variables : `camelCase` (ex: `appService`)
@@ -201,6 +204,7 @@ async function bootstrap() {
 ```
 
 **Flux de démarrage** :
+
 1. `main.ts` → Création de l'application NestJS
 2. `AppModule` → Import des modules (PrismaModule)
 3. `PrismaModule` → Initialisation de PrismaService
@@ -208,9 +212,11 @@ async function bootstrap() {
 5. Serveur HTTP démarre sur le port 3000 (ou PORT env)
 
 **Endpoints actuels** :
+
 - `GET /` → Retourne "Hello World!" (exemple)
 
 **Endpoints à implémenter** (selon MVP) :
+
 - `POST /auth/signup` → Inscription
 - `POST /auth/login` → Connexion
 - `POST /auth/forgot-password` → Mot de passe oublié
@@ -224,12 +230,14 @@ async function bootstrap() {
 **Point d'entrée principal** : `mobile/index.js` → `mobile/App.tsx`
 
 **Flux de démarrage** :
+
 1. `index.js` → Enregistrement de l'application React Native
 2. `App.tsx` → Composant racine avec SafeAreaProvider
 3. `AppContent` → Affichage du NewAppScreen (template par défaut)
 4. Navigation → À configurer avec React Navigation
 
 **Services disponibles** :
+
 - `api.ts` : Client HTTP avec intercepteurs JWT
 - `storage.ts` : Stockage sécurisé pour tokens et données utilisateur
 
@@ -241,21 +249,21 @@ async function bootstrap() {
 
 #### Backend (`.env` à la racine)
 
-| Variable | Description | Exemple | Statut |
-|----------|-------------|---------|--------|
-| `DATABASE_URL` | URL de connexion PostgreSQL | `postgresql://user:pass@localhost:5432/monkey_run?schema=public` | ✅ Requis |
-| `JWT_SECRET` | Secret pour signer les tokens JWT | `votre-secret-jwt-super-securise` | ✅ Requis |
-| `JWT_EXPIRATION` | Durée de validité du token | `7d` ou `24h` | ✅ Requis |
-| `NODE_ENV` | Environnement d'exécution | `development` / `production` | ⚠️ Optionnel |
-| `PORT` | Port du serveur | `3000` | ⚠️ Optionnel (défaut: 3000) |
-| `CORS_ORIGIN` | Origine CORS autorisée | `http://localhost:8081` | ⚠️ Optionnel |
+| Variable         | Description                       | Exemple                                                          | Statut                      |
+| ---------------- | --------------------------------- | ---------------------------------------------------------------- | --------------------------- |
+| `DATABASE_URL`   | URL de connexion PostgreSQL       | `postgresql://user:pass@localhost:5432/monkey_run?schema=public` | ✅ Requis                   |
+| `JWT_SECRET`     | Secret pour signer les tokens JWT | `votre-secret-jwt-super-securise`                                | ✅ Requis                   |
+| `JWT_EXPIRATION` | Durée de validité du token        | `7d` ou `24h`                                                    | ✅ Requis                   |
+| `NODE_ENV`       | Environnement d'exécution         | `development` / `production`                                     | ⚠️ Optionnel                |
+| `PORT`           | Port du serveur                   | `3000`                                                           | ⚠️ Optionnel (défaut: 3000) |
+| `CORS_ORIGIN`    | Origine CORS autorisée            | `http://localhost:8081`                                          | ⚠️ Optionnel                |
 
 **État actuel** : `.env.example` existe ; copier en `.env` et adapter les valeurs (DATABASE_URL, JWT_SECRET, etc.).
 
 #### Mobile
 
-| Variable | Description | Exemple | Statut |
-|----------|-------------|---------|--------|
+| Variable       | Description          | Exemple                              | Statut                                |
+| -------------- | -------------------- | ------------------------------------ | ------------------------------------- |
 | `API_BASE_URL` | URL de l'API backend | `http://10.0.2.2:3000/api` (Android) | ⚠️ Optionnel (hardcodé dans `api.ts`) |
 
 **⚠️ Problème identifié** : L'URL de l'API est hardcodée dans `mobile/src/services/api.ts` avec une valeur par défaut. Pour la production, il faudrait utiliser `react-native-config` ou une configuration dynamique.
@@ -281,6 +289,7 @@ async function bootstrap() {
 **État actuel** : Le schéma `prisma/schema.prisma` est défini avec les modèles User, Profile et Run (relation 1:1 User–Profile, 1:N User–Run). Index sur `run.user_id` et `run.date`. Voir `.cursor/DATABASE_SCHEMA.md` pour la référence complète.
 
 **Modèles définis** :
+
 - `User` : Utilisateurs (id, email, passwordHash, createdAt)
 - `Profile` : Profil utilisateur (pseudo, avatar_url, first_name, last_name), relation 1:1 avec User
 - `Run` : Courses enregistrées (date, durationSeconds, patternJson), relation 1:N avec User
@@ -309,19 +318,22 @@ async function bootstrap() {
 ### Framework de Tests
 
 #### Backend
+
 - **Framework** : Jest 30.0.0
 - **Configuration** : `jest.config.json` (dans `package.json`)
 - **Tests unitaires** : `*.spec.ts` (ex: `app.controller.spec.ts`)
 - **Tests E2E** : `test/*.e2e-spec.ts` (ex: `app.e2e-spec.ts`)
 
 #### Mobile
+
 - **Framework** : Jest 29.6.3
 - **Configuration** : `mobile/jest.config.js`
 - **Tests** : `mobile/__tests__/App.test.tsx`
 
 ### Couverture de Tests
 
-**État actuel** : 
+**État actuel** :
+
 - ✅ Tests unitaires de base présents (controller, service)
 - ✅ Tests E2E de base présents
 - ⚠️ **Couverture très limitée** (seulement les fichiers de base)
@@ -330,6 +342,7 @@ async function bootstrap() {
 - ❌ Aucun test d'intégration
 
 **Scripts disponibles** :
+
 - `npm run test` : Tests unitaires backend
 - `npm run test:watch` : Tests en mode watch
 - `npm run test:cov` : Tests avec couverture
@@ -338,6 +351,7 @@ async function bootstrap() {
 ### Outils de Linting et Formatage
 
 #### Backend
+
 - **ESLint** : 9.18.0 (configuration moderne avec `eslint.config.mjs`)
   - Utilise `typescript-eslint` pour TypeScript
   - Intégration avec Prettier
@@ -347,10 +361,12 @@ async function bootstrap() {
   - Script : `npm run format`
 
 #### Mobile
+
 - **ESLint** : 8.19.0 (configuration React Native)
 - **Prettier** : 2.8.8
 
 **Scripts disponibles** :
+
 - `npm run lint` : Vérification et correction ESLint (backend)
 - `npm run format` : Formatage Prettier (backend)
 
@@ -363,6 +379,7 @@ async function bootstrap() {
 **Qualité** : ⭐⭐⭐⭐⭐ **Excellente**
 
 Le fichier `README.md` est **très complet** et contient :
+
 - ✅ Instructions d'installation détaillées (Android Studio, PostgreSQL)
 - ✅ Structure du projet expliquée
 - ✅ Guide de configuration des variables d'environnement
@@ -372,6 +389,7 @@ Le fichier `README.md` est **très complet** et contient :
 - ✅ Ressources supplémentaires
 
 **Points forts** :
+
 - Documentation exhaustive pour les nouveaux développeurs
 - Instructions spécifiques pour Android et iOS
 - Exemples concrets de configuration
@@ -419,6 +437,7 @@ Le dossier `.cursor/` contient une documentation complémentaire importante pour
 ### Git
 
 **État actuel** :
+
 - ✅ `.gitignore` présent (ignore `node_modules`, `.env`, `/generated/prisma`)
 - ⚠️ Aucun workflow CI/CD configuré
 - ⚠️ Aucune stratégie de branching documentée
@@ -452,12 +471,14 @@ Le dossier `.cursor/` contient une documentation complémentaire importante pour
 **État actuel** : ⚠️ **Préparé mais non implémenté**
 
 **Dépendances installées** :
+
 - `@nestjs/jwt` : Gestion des tokens JWT
 - `@nestjs/passport` : Middleware d'authentification
 - `passport-jwt` : Stratégie JWT pour Passport
 - `bcrypt` : Hachage des mots de passe
 
 **À implémenter pour le MVP** :
+
 - Module `AuthModule` avec endpoints `/auth/signup`, `/auth/login`, `/auth/forgot-password`
 - Guards JWT (`@UseGuards(JwtAuthGuard)`)
 - Stratégies Passport (JWT Strategy)
@@ -468,12 +489,14 @@ Le dossier `.cursor/` contient une documentation complémentaire importante pour
 **État actuel** : ✅ **Infrastructure prête**
 
 **Implémenté** :
+
 - Service de stockage sécurisé (`storage.ts`) avec `react-native-encrypted-storage`
 - Intercepteur Axios pour ajout automatique du token JWT
 - Gestion des tokens (JWT + refresh token)
 - Stockage sécurisé via KeyStore Android / Keychain iOS
 
 **Fonctionnalités disponibles** :
+
 - `saveJwtToken()` : Sauvegarde sécurisée du token
 - `getJwtToken()` : Récupération du token
 - `removeJwtToken()` : Suppression du token
@@ -485,11 +508,13 @@ Le dossier `.cursor/` contient une documentation complémentaire importante pour
 #### Backend
 
 **Bonnes pratiques identifiées** :
+
 - ✅ Utilisation de `bcrypt` pour le hachage des mots de passe
 - ✅ Variables d'environnement pour les secrets (JWT_SECRET)
 - ✅ Validation des données avec `class-validator`
 
 **À améliorer pour le MVP** :
+
 - ⚠️ Pas de CORS configuré explicitement dans `main.ts`
 - ⚠️ Pas de validation des entrées utilisateur (DTOs manquants)
 - ⚠️ Pas de gestion des erreurs centralisée
@@ -497,11 +522,13 @@ Le dossier `.cursor/` contient une documentation complémentaire importante pour
 #### Mobile
 
 **Bonnes pratiques identifiées** :
+
 - ✅ Stockage sécurisé avec `react-native-encrypted-storage`
 - ✅ Intercepteur pour gestion automatique des tokens
 - ✅ Gestion des erreurs réseau dans l'intercepteur Axios
 
 **À améliorer pour le MVP** :
+
 - ⚠️ Pas de gestion de déconnexion automatique en cas d'erreur 401
 
 ### Configuration des Permissions
@@ -513,6 +540,7 @@ Le dossier `.cursor/` contient une documentation complémentaire importante pour
 **État actuel** : ⚠️ **Non vérifié** (fichier non lu)
 
 **Permissions requises pour le MVP** :
+
 - `INTERNET` : Pour les requêtes API
 - `ACCESS_NETWORK_STATE` : Pour vérifier la connectivité
 - `VIBRATE` : Pour les notifications de vibration du chrono
@@ -581,6 +609,7 @@ Le dossier `.cursor/` contient une documentation complémentaire importante pour
    - Validation des variables d'environnement
 
 **Note** : Les fonctionnalités suivantes sont prévues pour les versions futures (hors MVP) :
+
 - CI/CD automatisé
 - Cache Redis
 - Gestion offline
@@ -595,12 +624,14 @@ Le dossier `.cursor/` contient une documentation complémentaire importante pour
 ### Pour un Nouveau Développeur
 
 #### Prérequis Système
+
 - [ ] Node.js >= 18.x installé
 - [ ] PostgreSQL >= 14.x installé et démarré
 - [ ] Git installé et configuré
 - [ ] IDE configuré (VS Code recommandé)
 
 #### Pour le Développement Mobile (Android)
+
 - [ ] Java JDK 17 installé
 - [ ] Android Studio installé
 - [ ] Android SDK (API 33+) configuré
@@ -608,12 +639,14 @@ Le dossier `.cursor/` contient une documentation complémentaire importante pour
 - [ ] Émulateur Android créé ou appareil connecté
 
 #### Pour le Développement Mobile (iOS) - macOS uniquement
+
 - [ ] Xcode >= 14.x installé
 - [ ] CocoaPods installé (`sudo gem install cocoapods`)
 
 #### Configuration du Projet
 
 **Backend** :
+
 - [ ] Cloner le repository
 - [ ] `npm install` à la racine
 - [ ] Copier `.env.example` en `.env` et renseigner : `DATABASE_URL`, `JWT_SECRET`, `JWT_EXPIRATION`
@@ -622,6 +655,7 @@ Le dossier `.cursor/` contient une documentation complémentaire importante pour
 - [ ] `npm run start:dev` pour démarrer le serveur
 
 **Mobile** :
+
 - [ ] `cd mobile && npm install`
 - [ ] Pour iOS : `cd ios && pod install && cd ..`
 - [ ] Configurer `API_BASE_URL` dans `mobile/src/services/api.ts`
@@ -629,6 +663,7 @@ Le dossier `.cursor/` contient une documentation complémentaire importante pour
 - [ ] `npm run android` ou `npm run ios` pour lancer l'app
 
 #### Vérifications
+
 - [ ] Backend démarre sur `http://localhost:3000`
 - [ ] Connexion PostgreSQL fonctionne
 - [ ] Application mobile se connecte au backend
@@ -636,6 +671,7 @@ Le dossier `.cursor/` contient une documentation complémentaire importante pour
 - [ ] Linting OK : `npm run lint`
 
 #### Prochaines Étapes de Développement (MVP)
+
 - [x] Définir le schéma Prisma (User, Profile, Run) — migration `20260128223000_init` créée
 - [ ] Implémenter AuthModule (signup, login, forgot-password)
 - [ ] Implémenter UsersModule (GET/PATCH /users/me)

@@ -56,19 +56,17 @@ describe('UsersService', () => {
 
   describe('updateProfile', () => {
     it('should update profile and return profile', async () => {
-      mockPrisma.profile.findUnique.mockResolvedValue({ userId: 'user-1' });
-      mockPrisma.profile.update.mockResolvedValue({});
+      mockPrisma.profile.update.mockResolvedValue({
+        id: 'p1',
+        pseudo: 'newPseudo',
+        firstName: 'Jane',
+        lastName: 'Doe',
+        avatarUrl: null,
+      });
       mockPrisma.user.findUnique.mockResolvedValue({
         id: 'user-1',
         email: 'test@example.com',
         createdAt: new Date(),
-        profile: {
-          id: 'p1',
-          pseudo: 'newPseudo',
-          firstName: 'Jane',
-          lastName: 'Doe',
-          avatarUrl: null,
-        },
       });
       const result = await service.updateProfile('user-1', {
         pseudo: 'newPseudo',
@@ -77,8 +75,33 @@ describe('UsersService', () => {
       expect(mockPrisma.profile.update).toHaveBeenCalledWith({
         where: { userId: 'user-1' },
         data: { pseudo: 'newPseudo', firstName: 'Jane' },
+        select: {
+          id: true,
+          pseudo: true,
+          firstName: true,
+          lastName: true,
+          avatarUrl: true,
+        },
       });
       expect(result).toHaveProperty('profile.pseudo', 'newPseudo');
+    });
+
+    it('should not update when dto is empty', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue({
+        id: 'user-1',
+        email: 'test@example.com',
+        createdAt: new Date(),
+        profile: {
+          id: 'p1',
+          pseudo: 'x',
+          firstName: null,
+          lastName: null,
+          avatarUrl: null,
+        },
+      });
+      const result = await service.updateProfile('user-1', {});
+      expect(mockPrisma.profile.update).not.toHaveBeenCalled();
+      expect(result?.profile.pseudo).toBe('x');
     });
   });
 
